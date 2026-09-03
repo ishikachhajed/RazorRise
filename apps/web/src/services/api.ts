@@ -84,6 +84,13 @@ export interface ShopEverywhereContext {
   lastMaxPrice?: number;
   lastMinPrice?: number;
   lastProducts?: ExternalProduct[];
+  shownProductUrls?: string[];
+  budget?: { min?: number; max?: number };
+  filters?: { brands?: string[]; [key: string]: any };
+  previousResults?: Array<{ index: number; title: string; url: string; price: string; source: string }>;
+  pendingCrossSellCategory?: string;
+  pendingClarification?: { category: string; originalQuery: string; questions: string[] };
+  suggestedCrossSellCategories?: string[];
   preferredBrands?: string[];
   conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
 }
@@ -94,12 +101,13 @@ export class ApiService {
     cartId?: string,
     accumulatedIntent?: any,
     mode: 'my_store' | 'shop_everywhere' = 'my_store',
-    accumulatedContext?: ShopEverywhereContext
+    accumulatedContext?: ShopEverywhereContext,
+    userId?: string
   ) {
     const res = await fetch(`${API_BASE}/ai/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, cartId, accumulatedIntent, mode, accumulatedContext })
+      body: JSON.stringify({ message, cartId, userId, accumulatedIntent, mode, accumulatedContext })
     });
     if (!res.ok) {
       const err = await res.json();

@@ -36,10 +36,18 @@ When a user types a sequence like:
 5. *"Black ones"* (Refinement - Keyword)
 
 **How it works internally:**
-- The agent tracks `ShopEverywhereContext`, specifically `lastCategory`, `lastQuery`, and `shownProductUrls`.
-- For follow-up queries, the Groq intent extractor sets `isRefinement: true`.
-- The backend logically binds the new filters (like a max price of 1500) to the original search context (ladies suits), instead of performing a generic search for "cheaper ones".
+- The agent tracks a highly structured `ShopEverywhereContext`, specifically maintaining `budget`, `filters`, `previousResults` (stable numeric mapping), `lastCategory`, and `shownProductUrls`.
+- The Groq intent extractor assigns a strict `ShoppingIntentType` enum (`NEW_SEARCH`, `MORE_RESULTS`, `PRICE_REFINEMENT`, `CATEGORY_CHANGE`, etc.) instead of relying on loose flags or strings.
+- **Deterministic Query Resolution:** Before sending any query to the external search, a dedicated query resolution pipeline runs:
+  - **Budget & Category Preservation:** If the intent is `PRICE_REFINEMENT` ("under 30000") or `MORE_RESULTS` ("more options"), the AI explicitly inherits the `lastCategory` from context, preventing literal relative words like "more" from accidentally overriding the search subject.
+  - **Subject Switching:** If the intent is `CATEGORY_CHANGE` ("actually, show me phones"), the AI actively clears out the old context tree and starts fresh.
+- **Stable References:** `previousResults` maintains a persistent mapping (e.g. `1. ASUS, 2. Lenovo`). If the user says "Tell me about number 2", the AI maps it directly to the previous Lenovo result.
 - If the user asks for "more", it passes `shownProductUrls` to `ShoppingService` as `excludeUrls` to filter out duplicates.
+
+## Context-Aware Cross-Selling
+When appropriate, the AI can propose complementary products (e.g., offering laptop bags after searching for laptops). 
+1. **Suggestion:** The AI sets a `pendingCrossSellCategory` and asks the user if they'd like to see it. It **does not** perform the search yet.
+2. **Acceptance:** If the user agrees ("Yes", "Sure, under 500"), the AI executes the cross-sell search using the pending category, applying any new constraints the user provided.
 
 ## Comparison Feature
 If the user explicitly asks to "compare" products (e.g., *"Compare the first two"*), the LLM sets `needsComparison: true`. The backend builds a side-by-side `ComparisonData` object detailing the strengths and weaknesses of the selected products, which is rendered in the UI via `ComparisonView.tsx`.

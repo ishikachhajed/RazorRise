@@ -36,6 +36,7 @@ interface ChatMessage {
   // Shop Everywhere fields
   externalProducts?: ExternalProduct[];
   crossSellProducts?: ExternalProduct[];
+  crossSellPrompt?: string;
   comparison?: ComparisonData;
   timestamp: string;
 }
@@ -55,6 +56,16 @@ export const ShopPage: React.FC = () => {
 
   // ── Shop Everywhere state ─────────────────────────────────────────────────
   const [shopEverywhereContext, setShopEverywhereContext] = useState<ShopEverywhereContext>({});
+  const [sessionId] = useState(() => {
+    const storageKey = 'razorflow_shop_session_id';
+    const existing = localStorage.getItem(storageKey);
+    if (existing) return existing;
+    const generated = typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `session_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    localStorage.setItem(storageKey, generated);
+    return generated;
+  });
 
   // ── Shared state ──────────────────────────────────────────────────────────
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -89,7 +100,7 @@ export const ShopPage: React.FC = () => {
       {
         id: 'msg_welcome',
         sender: 'ai',
-        text: "Hi! I'm Riya, your AI shopping assistant. How can I help you today?",
+        text: "Hi! I'm your AI shopping assistant.\n\nWhat are you looking for today?",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
     ]);
@@ -135,7 +146,8 @@ export const ShopPage: React.FC = () => {
         cart?.id,
         accumulatedIntent,
         mode,
-        mode === 'shop_everywhere' ? shopEverywhereContext : undefined
+        mode === 'shop_everywhere' ? shopEverywhereContext : undefined,
+        sessionId
       );
 
       // Update persistent context
@@ -163,6 +175,7 @@ export const ShopPage: React.FC = () => {
         // Shop Everywhere fields
         externalProducts: response.externalProducts,
         crossSellProducts: response.crossSellProducts,
+        crossSellPrompt: response.crossSellPrompt,
         comparison: response.comparison,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
@@ -317,42 +330,44 @@ export const ShopPage: React.FC = () => {
 
       {/* Abandoned Cart Recovery Banner */}
       {abandonedBanner && mode === 'my_store' && (
-        <div className="mb-4 p-4 rounded-md flex items-start justify-between gap-3" style={{ backgroundColor: 'var(--color-peach)', border: '1px solid #e8c8b8' }}>
+        <div className="mb-4 p-4 rounded-md flex items-start justify-between gap-3" style={{ backgroundColor: 'var(--color-blush)', border: '1px solid #D8CCCF' }}>
           <div className="flex items-start gap-3 flex-1">
-            <AlertTriangle size={18} style={{ color: 'var(--color-mauve)', flexShrink: 0, marginTop: '2px' }} />
-            <div>
-              <span className="font-bold block mb-1 text-sm">Your cart has saved items!</span>
-              <p className="text-sm m-0">{abandonedBanner}</p>
+            <AlertTriangle size={18} style={{ color: 'var(--color-plum)', flexShrink: 0, marginTop: '2px' }} />
+            <div className="flex flex-col gap-2">
+              <div>
+                <span className="font-bold block mb-1 text-sm" style={{ color: 'var(--color-plum)' }}>Your cart has saved items!</span>
+                <p className="text-sm m-0" style={{ color: 'var(--text-primary)' }}>{abandonedBanner}</p>
+              </div>
+              <button onClick={() => setIsCheckoutOpen(true)} className="btn-primary text-xs flex items-center gap-1" style={{ padding: '6px 12px', width: 'max-content' }}>
+                Checkout Now <ArrowRight size={14} />
+              </button>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button onClick={() => setIsCheckoutOpen(true)} className="btn-primary text-xs flex items-center gap-1" style={{ padding: '6px 12px' }}>
-              Checkout Now <ArrowRight size={14} />
-            </button>
-            <button onClick={() => setAbandonedBanner(null)} className="btn-tertiary" style={{ padding: '6px', border: 'none' }}>
+          <div className="flex items-start">
+            <button onClick={() => setAbandonedBanner(null)} className="btn-tertiary" style={{ padding: '6px', border: 'none', backgroundColor: 'transparent', color: 'var(--color-plum)' }}>
               <X size={16} />
             </button>
           </div>
         </div>
       )}
 
-      <div className="card h-full flex flex-col justify-between p-0" style={{ minHeight: '750px', overflow: 'hidden' }}>
+      <div className="card h-full flex flex-col justify-between p-0" style={{ minHeight: '750px', overflow: 'hidden', border: 'none', borderRadius: 0, boxShadow: 'none' }}>
 
         {/* Header */}
-        <div className="border-b p-4" style={{ backgroundColor: '#F0EFEB' }}>
+        <div className="border-b p-4" style={{ backgroundColor: 'var(--bg-card)' }}>
           <div className="flex items-center justify-between gap-3" style={{ flexWrap: 'wrap', gap: '10px' }}>
 
             {/* Assistant identity */}
-            <div className="flex items-center gap-3">
-              <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#283618', color: '#F0EFEB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <div className="flex items-center" style={{ gap: '14px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: 'var(--color-plum)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Bot size={20} />
               </div>
               <div>
-                <h2 className="font-bold m-0 flex items-center gap-2 text-sm">
-                  Riya — AI Assistant
-                  <span className="badge badge-success" style={{ fontSize: '10px' }}>Online</span>
+                <h2 className="font-bold m-0 flex items-center" style={{ color: 'var(--text-primary)', fontSize: '15px', lineHeight: 1.25, gap: '10px' }}>
+                  AI Assistant
+                  <span className="badge badge-success" style={{ fontSize: '10px', padding: '3px 8px', lineHeight: 1 }}>ONLINE</span>
                 </h2>
-                <p className="text-muted m-0 text-xs">
+                <p className="text-muted m-0 text-xs" style={{ marginTop: '4px' }}>
                   {mode === 'my_store' ? 'Managing your store' : 'Shopping across the web'}
                 </p>
               </div>
@@ -365,52 +380,55 @@ export const ShopPage: React.FC = () => {
               <div
                 style={{
                   display: 'flex',
-                  backgroundColor: '#E5E7EB',
+                  backgroundColor: '#F7F7F7',
                   borderRadius: '10px',
                   padding: '3px',
-                  gap: '2px'
+                  gap: '2px',
+                  border: '1px solid var(--border-color)'
                 }}
               >
                 <button
                   id="mode-my-store"
                   onClick={() => handleModeSwitch('my_store')}
                   style={{
-                    padding: '5px 12px',
+                    padding: '6px 14px',
                     borderRadius: '8px',
                     border: 'none',
-                    fontSize: '12px',
+                    fontSize: '13px',
                     fontWeight: 600,
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '5px',
-                    backgroundColor: mode === 'my_store' ? '#283618' : 'transparent',
-                    color: mode === 'my_store' ? '#F0EFEB' : '#6B7280',
-                    transition: 'all 0.2s'
+                    backgroundColor: mode === 'my_store' ? 'var(--color-plum)' : 'transparent',
+                    color: mode === 'my_store' ? '#FFFFFF' : 'var(--text-secondary)',
+                    transition: 'all 0.2s',
+                    boxShadow: mode === 'my_store' ? 'var(--shadow-sm)' : 'none'
                   }}
                 >
-                  <Store size={13} />
+                  <Store size={14} />
                   My Store
                 </button>
                 <button
                   id="mode-shop-everywhere"
                   onClick={() => handleModeSwitch('shop_everywhere')}
                   style={{
-                    padding: '5px 12px',
+                    padding: '6px 14px',
                     borderRadius: '8px',
                     border: 'none',
-                    fontSize: '12px',
+                    fontSize: '13px',
                     fontWeight: 600,
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '5px',
-                    backgroundColor: mode === 'shop_everywhere' ? '#283618' : 'transparent',
-                    color: mode === 'shop_everywhere' ? '#F0EFEB' : '#6B7280',
-                    transition: 'all 0.2s'
+                    backgroundColor: mode === 'shop_everywhere' ? 'var(--color-plum)' : 'transparent',
+                    color: mode === 'shop_everywhere' ? '#FFFFFF' : 'var(--text-secondary)',
+                    transition: 'all 0.2s',
+                    boxShadow: mode === 'shop_everywhere' ? 'var(--shadow-sm)' : 'none'
                   }}
                 >
-                  <Globe size={13} />
+                  <Globe size={14} />
                   Shop Everywhere
                 </button>
               </div>
@@ -431,7 +449,27 @@ export const ShopPage: React.FC = () => {
         </div>
 
         {/* Chat Stream */}
-        <div className="flex-1 overflow-y-auto p-4" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="flex-1 overflow-y-auto p-6" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', backgroundColor: 'var(--bg-primary)' }}>
+
+          {/* Quick Prompts for Empty State */}
+          {messages.length === 1 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: '85%' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '4px' }}>
+                <button onClick={() => handleSendMessage("Find running shoes under ₹5,000")} className="btn-tertiary" style={{ fontSize: '12px', padding: '6px 12px', backgroundColor: 'var(--bg-card)' }}>
+                  Find running shoes under ₹5,000
+                </button>
+                <button onClick={() => handleSendMessage("Laptop under ₹70,000")} className="btn-tertiary" style={{ fontSize: '12px', padding: '6px 12px', backgroundColor: 'var(--bg-card)' }}>
+                  Laptop under ₹70,000
+                </button>
+                <button onClick={() => handleSendMessage("Headphones for travel")} className="btn-tertiary" style={{ fontSize: '12px', padding: '6px 12px', backgroundColor: 'var(--bg-card)' }}>
+                  Headphones for travel
+                </button>
+                <button onClick={() => handleSendMessage("Build a gaming setup")} className="btn-tertiary" style={{ fontSize: '12px', padding: '6px 12px', backgroundColor: 'var(--bg-card)' }}>
+                  Build a gaming setup
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Demo scenario selector only in My Store mode */}
           {mode === 'my_store' && (
@@ -538,39 +576,77 @@ export const ShopPage: React.FC = () => {
                     <ComparisonView products={msg.externalProducts} comparison={msg.comparison} />
                   )}
 
-                  {/* External Products grid (non-comparison) */}
+                  {/* External Products list (non-comparison) */}
                   {msg.externalProducts && msg.externalProducts.length > 0 && !msg.comparison && (
-                    <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="mt-4 flex flex-col gap-3">
                       {msg.externalProducts.map((prod, i) => (
-                        <ExternalProductCard key={`ext-${i}`} product={prod} />
+                        <div key={`ext-${i}`} style={{ position: 'relative' }}>
+                          {i === 0 && (
+                            <div style={{
+                              position: 'absolute',
+                              top: '-12px',
+                              right: '16px',
+                              zIndex: 10,
+                              backgroundColor: 'var(--color-plum)',
+                              color: 'white',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              padding: '4px 10px',
+                              borderRadius: '20px',
+                              boxShadow: '0 2px 8px rgba(120, 88, 111, 0.4)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}>
+                              ✨ AI Recommendation
+                            </div>
+                          )}
+                          <ExternalProductCard product={prod} />
+                        </div>
                       ))}
                     </div>
                   )}
 
                   {/* Cross-sell products */}
                   {msg.crossSellProducts && msg.crossSellProducts.length > 0 && (
-                    <div className="mt-4">
+                    <div className="mt-5">
                       <div
                         style={{
                           fontSize: '12px',
                           fontWeight: 700,
-                          color: '#283618',
-                          marginBottom: '8px',
+                          color: 'var(--color-plum)',
+                          marginBottom: '12px',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '6px',
-                          padding: '6px 10px',
-                          backgroundColor: '#F0FFF4',
+                          padding: '8px 12px',
+                          backgroundColor: 'var(--color-blush)',
                           borderRadius: '8px',
-                          border: '1px solid #BBF7D0'
+                          border: '1px solid #D8CCCF'
                         }}
                       >
-                        🎯 Also Consider — Recommended Accessories
+                        🎯 Contextual Match
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-3">
                         {msg.crossSellProducts.map((prod, i) => (
                           <ExternalProductCard key={`cs-${i}`} product={prod} />
                         ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {msg.crossSellPrompt && (
+                    <div className="mt-4 p-4 rounded-md border" style={{ backgroundColor: 'var(--color-blush)', borderColor: '#D8CCCF' }}>
+                      <div style={{ color: 'var(--color-plum)', fontWeight: 500 }}>
+                        <ReactMarkdown>{msg.crossSellPrompt}</ReactMarkdown>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                        <button onClick={() => handleSendMessage('Yes, find some')} className="btn-primary" style={{ padding: '6px 12px', fontSize: '13px' }}>
+                          Find options
+                        </button>
+                        <button onClick={() => handleSendMessage('No thanks')} className="btn-tertiary" style={{ padding: '6px 12px', fontSize: '13px', backgroundColor: 'var(--bg-card)' }}>
+                          No thanks
+                        </button>
                       </div>
                     </div>
                   )}
@@ -582,9 +658,28 @@ export const ShopPage: React.FC = () => {
           ))}
 
           {loading && (
-            <div className="flex items-center gap-2 text-muted text-sm">
-              <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} />
-              {mode === 'shop_everywhere' ? 'Searching across stores...' : 'Thinking...'}
+            <div className="flex flex-col gap-2 text-muted text-sm mt-2 ml-4">
+              <div className="flex items-center gap-3">
+                <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite', color: 'var(--color-plum)' }} />
+                <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>
+                  {mode === 'shop_everywhere' ? '🔎 AI Assistant is searching across the web...' : 'Thinking...'}
+                </span>
+              </div>
+              {mode === 'shop_everywhere' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginLeft: '28px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                  <span style={{ animation: 'fadeIn 0.5s ease-in forwards', opacity: 0 }}>✓ Finding relevant products</span>
+                  <span style={{ animation: 'fadeIn 0.5s ease-in forwards', animationDelay: '1s', opacity: 0 }}>✓ Comparing options</span>
+                  <span style={{ animation: 'fadeIn 0.5s ease-in forwards', animationDelay: '2s', opacity: 0 }}>✓ Matching your requirements</span>
+                  <style>
+                    {`
+                      @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(4px); }
+                        to { opacity: 1; transform: translateY(0); }
+                      }
+                    `}
+                  </style>
+                </div>
+              )}
             </div>
           )}
 
@@ -592,16 +687,30 @@ export const ShopPage: React.FC = () => {
         </div>
 
         {/* Input */}
-        <div className="p-4 border-t" style={{ backgroundColor: '#F0EFEB' }}>
+        <div className="p-4" style={{ backgroundColor: 'var(--bg-primary)' }}>
           <form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }}>
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <div style={{ 
+              position: 'relative', 
+              display: 'flex', 
+              alignItems: 'center', 
+              backgroundColor: 'var(--bg-card)', 
+              borderRadius: '24px',
+              border: '1px solid var(--border-color)',
+              boxShadow: 'var(--shadow-sm)'
+            }}>
               <input
                 id="chat-input"
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                placeholder={inputPlaceholder}
-                style={{ paddingRight: '3.5rem', paddingLeft: '1rem' }}
+                placeholder="Ask the AI Assistant to find anything..."
+                style={{ 
+                  padding: '14px 20px', 
+                  paddingRight: '3.5rem', 
+                  border: 'none', 
+                  backgroundColor: 'transparent',
+                  borderRadius: '24px'
+                }}
               />
               <button
                 id="chat-send-btn"
@@ -612,13 +721,14 @@ export const ShopPage: React.FC = () => {
                   right: '8px',
                   top: '50%',
                   transform: 'translateY(-50%)',
-                  backgroundColor: loading || !inputMessage.trim() ? 'var(--border-color)' : '#283618',
+                  backgroundColor: loading || !inputMessage.trim() ? 'var(--border-color)' : 'var(--color-plum)',
                   border: 'none',
                   color: 'white',
-                  borderRadius: '8px',
-                  padding: '6px 10px',
+                  borderRadius: '50%',
+                  width: '36px',
+                  height: '36px',
                   cursor: loading || !inputMessage.trim() ? 'not-allowed' : 'pointer',
-                  transition: 'background-color 0.2s',
+                  transition: 'all 0.2s',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
@@ -629,7 +739,7 @@ export const ShopPage: React.FC = () => {
             </div>
           </form>
           {/* Mode indicator */}
-          <div style={{ marginTop: '8px', fontSize: '12px', color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+          <div style={{ marginTop: '12px', fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
             {mode === 'my_store'
               ? <><Store size={14} /> <strong>My Store:</strong> Explore your store, orders, customers and sales</>
               : <><Globe size={14} /> <strong>Shop Everywhere:</strong> Search products across multiple marketplaces</>

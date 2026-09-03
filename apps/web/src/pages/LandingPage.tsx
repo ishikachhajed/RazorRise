@@ -35,6 +35,7 @@ export const LandingPage: React.FC = () => {
           </Link>
         </div>
 
+
       </section>
 
       {/* Core Pillars */}

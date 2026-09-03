@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Navbar } from './components/Navbar';
+
 import { CartSidebar } from './components/CartSidebar';
 import { CheckoutModal } from './components/CheckoutModal';
 import { LandingPage } from './pages/LandingPage';
@@ -12,6 +12,7 @@ import { MerchantDashboardPage } from './pages/MerchantDashboardPage';
 import { MerchantInsightsPage } from './pages/MerchantInsightsPage';
 import { MerchantCatalogPage } from './pages/MerchantCatalogPage';
 import { AuditTrailPage } from './pages/AuditTrailPage';
+import { Sidebar } from './components/Sidebar';
 import { ApiService, Cart } from './services/api';
 
 export function App() {
@@ -39,13 +40,13 @@ export function App() {
 
   return (
     <Router>
-      <div className="min-h-screen flex flex-col justify-between">
-        <Navbar
+      <div className="min-h-screen flex">
+        <Sidebar
           cartItemCount={cart?.itemCount || 0}
           onOpenCart={() => setIsCartOpen(true)}
         />
 
-        <main className="flex-1">
+        <main className="flex-1 overflow-y-auto bg-gray-50">
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/shop" element={<ShopPage />} />

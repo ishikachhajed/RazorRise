@@ -62,8 +62,15 @@ export class GroqAIProvider implements AIProvider {
 
     // Strip <think>...</think> reasoning tags produced by reasoning models (qwen etc.)
     content = content.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
-
-    // Also strip any residual thinking patterns line by line for extra safety
+    if (content.includes('<think>')) {
+      const parts = content.split('</think>');
+      if (parts.length > 1) {
+        content = parts.pop() || '';
+      } else {
+        content = content.replace(/<think>[\s\S]*/gi, ''); // no closing tag, strip everything after
+      }
+    }
+    content = content.trim();
     const lines = content.split('\n');
     const cleanLines = lines.filter((line: string) => !hasReasoningLeak(line));
     content = cleanLines.join('\n').trim();
