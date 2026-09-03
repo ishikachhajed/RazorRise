@@ -244,7 +244,26 @@ export class ApiService {
   static async getOrders(userId?: string) {
     const params = new URLSearchParams();
     if (userId) params.append('userId', userId);
-    const res = await fetch(`${API_BASE}/orders?${params.toString()}`);
+    
+    // Add cartIds from localStorage to identify guest user's orders
+    if (typeof window !== 'undefined') {
+      const cartIds = localStorage.getItem('razorflow_cart_ids');
+      if (cartIds) {
+        try {
+          const parsedIds = JSON.parse(cartIds);
+          if (Array.isArray(parsedIds) && parsedIds.length > 0) {
+            params.append('cartIds', parsedIds.join(','));
+          }
+        } catch (e) {
+          // ignore parsing error
+        }
+      }
+    }
+    
+    params.append('_', Date.now().toString());
+    const res = await fetch(`${API_BASE}/orders?${params.toString()}`, {
+      cache: 'no-store'
+    });
     if (!res.ok) throw new Error('Failed to load orders');
     return res.json();
   }

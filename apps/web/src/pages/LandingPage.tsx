@@ -5,14 +5,11 @@ import { Sparkles, ArrowRight, ShieldCheck, Zap, BarChart3, FileText, Code, Cpu,
 export const LandingPage: React.FC = () => {
   return (
     <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: '3rem', minHeight: 'calc(100vh - 4rem)' }}>
-      
+
       {/* Hero Section */}
       <section style={{ textAlign: 'center', paddingTop: '4rem', paddingBottom: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
-        
-        <div className="badge badge-success flex items-center gap-2" style={{ padding: '6px 12px', fontSize: '12px' }}>
-          <Sparkles size={14} />
-          Razorpay AI Buildathon — Track 01: AI Growth & Agentic Commerce
-        </div>
+
+
 
         <h1 style={{ fontSize: '3rem', fontWeight: 800, margin: 0, lineHeight: 1.1 }}>
           Turn conversations into <br />
@@ -73,7 +70,7 @@ export const LandingPage: React.FC = () => {
 
       {/* Agent to Agent Section */}
       <section className="card bg-card mt-8 flex flex-col md:flex-row gap-8 items-center" style={{ backgroundColor: '#FAF5F6' }}>
-        
+
         <div className="flex-1 flex flex-col gap-4">
           <span className="badge w-max" style={{ backgroundColor: 'white', color: 'var(--text-secondary)', border: '1px solid var(--border-color)' }}>
             Agent-to-Agent (A2A)
@@ -82,7 +79,7 @@ export const LandingPage: React.FC = () => {
           <p className="m-0 text-sm text-muted">
             Exposing catalog discovery and gated checkout tools for external AI agents (MCP Protocol Ready)
           </p>
-          
+
           <div className="flex flex-col gap-3 text-sm mt-2">
             <div className="flex items-center gap-2">
               <Database size={16} style={{ color: 'var(--color-mauve)' }} />
@@ -104,7 +101,7 @@ export const LandingPage: React.FC = () => {
 
         <div className="flex-1 bg-card p-4 rounded-md border" style={{ fontSize: '12px', fontFamily: 'monospace' }}>
           <pre className="m-0 text-secondary" style={{ overflowX: 'auto', whiteSpace: 'pre-wrap' }}>
-{`{
+            {`{
   "agent": "RazorRise-AI-Commerce",
   "protocol": "MCP / A2A",
   "capabilities": [

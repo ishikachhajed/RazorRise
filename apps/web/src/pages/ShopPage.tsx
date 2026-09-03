@@ -14,8 +14,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import { downloadInvoice } from '../utils/invoice';
 
 type ChatMode = 'my_store' | 'shop_everywhere';
 
@@ -251,50 +250,13 @@ export const ShopPage: React.FC = () => {
   };
 
   const handleDownloadReceiptPDF = (receipt: { orderId: string; paymentId: string; amount: number; items: any[] }) => {
-    const doc = new jsPDF();
-    const orderId = receipt.orderId.slice(-6).toUpperCase();
-    const now = new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-
-    doc.setFontSize(22);
-    doc.setTextColor(40, 54, 24);
-    doc.text('RazorRise Commerce', 14, 22);
-
-    doc.setFontSize(10);
-    doc.setTextColor(139, 139, 139);
-    doc.text('Adaptive Commerce — Powered by Razorpay (Test Mode)', 14, 30);
-
-    doc.setFontSize(10);
-    doc.setTextColor(40, 54, 24);
-    doc.text(`Order ID: #${orderId}`, 14, 45);
-    doc.text(`Payment ID: ${receipt.paymentId}`, 14, 52);
-    doc.text(`Date: ${now}`, 14, 59);
-    doc.text(`Status: PAID`, 14, 66);
-
-    const tableRows = receipt.items.map((item: any) => [
-      item.productName || item.name,
-      (item.quantity || 1).toString(),
-      `Rs. ${(item.subtotal || item.price || 0).toLocaleString('en-IN')}`
-    ]);
-
-    autoTable(doc, {
-      head: [['Product', 'Qty', 'Amount (INR)']],
-      body: tableRows,
-      startY: 75,
-      theme: 'grid',
-      styles: { fontSize: 10, textColor: [40, 54, 24] },
-      headStyles: { fillColor: [212, 212, 212], textColor: [40, 54, 24] },
+    downloadInvoice({
+      orderId: receipt.orderId,
+      paymentId: receipt.paymentId,
+      amount: receipt.amount,
+      items: receipt.items,
+      paymentStatus: 'paid'
     });
-
-    const finalY = (doc as any).lastAutoTable.finalY || 90;
-    doc.setFontSize(14);
-    doc.setTextColor(40, 54, 24);
-    doc.text(`Total Paid: Rs. ${receipt.amount.toLocaleString('en-IN')}`, 14, finalY + 15);
-
-    doc.setFontSize(9);
-    doc.setTextColor(139, 139, 139);
-    doc.text('This is a computer-generated receipt for a Razorpay Test Mode transaction. No real money was charged.', 14, finalY + 30);
-
-    doc.save(`Invoice_RazorRise_${orderId}.pdf`);
   };
 
   const handlePaymentFailed = (reason: string) => {

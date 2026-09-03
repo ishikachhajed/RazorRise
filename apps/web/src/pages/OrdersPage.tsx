@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Download, CheckCircle, XCircle, Clock, Package, RefreshCw } from 'lucide-react';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import { ApiService } from '../services/api';
+import { downloadInvoice } from '../utils/invoice';
 
 interface OrderItem {
   id: string;
@@ -31,6 +31,12 @@ function formatDate(isoString: string) {
   });
 }
 
+function isPaidOrder(order: Order) {
+  const paymentStatus = order.paymentStatus?.toLowerCase();
+  const orderStatus = order.status?.toLowerCase();
+  return paymentStatus === 'captured' || paymentStatus === 'paid' || orderStatus === 'paid';
+}
+
 export const OrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,24 +45,9 @@ export const OrdersPage: React.FC = () => {
   const fetchOrders = () => {
     setLoading(true);
     setError(null);
-    // Fetch all carts linked to this session
-    const cartIds = JSON.parse(localStorage.getItem('razorflow_cart_ids') || '[]');
-    // Also include the current active cart just in case
-    const currentCartId = localStorage.getItem('razorflow_cart_id');
-    if (currentCartId && !cartIds.includes(currentCartId)) cartIds.push(currentCartId);
-
-    if (cartIds.length === 0) {
-      setOrders([]);
-      setLoading(false);
-      return;
-    }
-
-    const url = `/api/orders?cartIds=${encodeURIComponent(cartIds.join(','))}`;
-    fetch(url)
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch orders');
-        return res.json();
-      })
+    // The order endpoint returns the complete order history when no status
+    // filter is supplied, including paid, pending, and failed orders.
+    ApiService.getOrders()
       .then((data) => {
         setOrders(data.orders || []);
         setLoading(false);
@@ -69,69 +60,42 @@ export const OrdersPage: React.FC = () => {
 
   useEffect(() => {
     fetchOrders();
+
+    // Payment verification can finish while this page is already open.
+    // Refresh when the browser returns here and briefly poll for the webhook result.
+    const refreshOnReturn = () => fetchOrders();
+    window.addEventListener('focus', refreshOnReturn);
+    window.addEventListener('pageshow', refreshOnReturn);
+    const refreshTimer = window.setInterval(fetchOrders, 15000);
+
+    return () => {
+      window.removeEventListener('focus', refreshOnReturn);
+      window.removeEventListener('pageshow', refreshOnReturn);
+      window.clearInterval(refreshTimer);
+    };
   }, []);
 
   const handleDownloadInvoice = (order: Order) => {
-    const doc = new jsPDF();
-    const orderId = order.id.slice(-6).toUpperCase();
-    
-    // Header
-    doc.setFontSize(22);
-    doc.setTextColor(40, 54, 24); // Darkest Forest
-    doc.text('RazorRise Commerce', 14, 22);
-    
-    doc.setFontSize(10);
-    doc.setTextColor(139, 139, 139); // Muted
-    doc.text('Adaptive Commerce — Powered by Razorpay', 14, 30);
-    
-    // Meta Info
-    doc.setFontSize(10);
-    doc.setTextColor(40, 54, 24);
-    doc.text(`Order ID: #${orderId}`, 14, 45);
-    doc.text(`Razorpay Ref: ${order.razorpayOrderId}`, 14, 52);
-    doc.text(`Date: ${formatDate(order.createdAt)}`, 14, 59);
-    doc.text(`Status: ${order.paymentStatus.toUpperCase()}`, 14, 66);
-
-    // Items Table
-    const tableColumn = ["Product", "Qty", "Amount (INR)"];
-    const tableRows = order.items.map(item => [
-      item.productName,
-      item.quantity.toString(),
-      `Rs. ${item.subtotal.toLocaleString('en-IN')}`
-    ]);
-
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY: 75,
-      theme: 'grid',
-      styles: { fontSize: 10, textColor: [40, 54, 24] },
-      headStyles: { fillColor: [212, 212, 212], textColor: [40, 54, 24] },
+    downloadInvoice({
+      orderId: order.id,
+      razorpayOrderId: order.razorpayOrderId,
+      amount: order.amount,
+      items: order.items,
+      createdAt: order.createdAt,
+      paymentStatus: order.paymentStatus || order.status
     });
-
-    // Total
-    const finalY = (doc as any).lastAutoTable.finalY || 75;
-    doc.setFontSize(14);
-    doc.setTextColor(40, 54, 24);
-    doc.text(`Total Paid: Rs. ${order.amount.toLocaleString('en-IN')}`, 14, finalY + 15);
-
-    // Footer
-    doc.setFontSize(9);
-    doc.setTextColor(139, 139, 139);
-    doc.text('This is a computer-generated receipt for a Razorpay Test Mode transaction.', 14, finalY + 35);
-    doc.text('No real money was charged.', 14, finalY + 40);
-
-    doc.save(`Invoice_RazorRise_${orderId}.pdf`);
   };
 
   const getStatusBadge = (order: Order) => {
     // Handle both 'captured' paymentStatus and 'paid' order status
-    const isPaid = order.paymentStatus === 'captured' || order.status === 'paid';
-    const isFailed = order.paymentStatus === 'failed' || order.status === 'failed';
+    const paymentStatus = order.paymentStatus?.toLowerCase();
+    const orderStatus = order.status?.toLowerCase();
+    const isPaid = isPaidOrder(order);
+    const isFailed = paymentStatus === 'failed' || orderStatus === 'failed' || orderStatus === 'cancelled';
     if (isPaid) {
       return (
         <span style={{ display:'inline-flex', alignItems:'center', gap:'4px', fontSize:'11px', fontWeight:700, padding:'3px 10px', borderRadius:'20px', backgroundColor:'#dcfce7', color:'#166534' }}>
-          <CheckCircle size={12} /> Paid
+          <CheckCircle size={12} /> Paid / Successful
         </span>
       );
     }
@@ -243,17 +207,17 @@ export const OrdersPage: React.FC = () => {
               <div style={{ display:'flex', justifyContent:'flex-end', paddingTop:'0.75rem', borderTop:'1px solid var(--border-color)' }}>
                 <button
                   onClick={() => handleDownloadInvoice(order)}
-                  disabled={order.paymentStatus !== 'captured' && order.status !== 'paid'}
+                  disabled={!isPaidOrder(order)}
                   className="btn-tertiary"
                   style={{
                     display:'flex', alignItems:'center', gap:'6px', fontSize:'13px',
-                    opacity: (order.paymentStatus !== 'captured' && order.status !== 'paid') ? 0.45 : 1,
-                    cursor: (order.paymentStatus !== 'captured' && order.status !== 'paid') ? 'not-allowed' : 'pointer'
+                    opacity: isPaidOrder(order) ? 1 : 0.45,
+                    cursor: isPaidOrder(order) ? 'pointer' : 'not-allowed'
                   }}
-                  title={(order.paymentStatus !== 'captured' && order.status !== 'paid') ? 'Receipt only available for paid orders' : 'Download receipt'}
+                  title={isPaidOrder(order) ? 'Download invoice' : 'Invoice unavailable until payment is successful'}
                 >
                   <Download size={14} />
-                  {(order.paymentStatus === 'captured' || order.status === 'paid') ? 'Download Receipt' : 'Receipt Unavailable'}
+                  {isPaidOrder(order) ? 'Download Invoice' : 'Invoice Unavailable'}
                 </button>
               </div>
             </div>
