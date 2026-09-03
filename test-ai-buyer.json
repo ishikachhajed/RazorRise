@@ -1,0 +1,21 @@
+{
+  "description": "Curl commands to test the AI Buyer API endpoints.",
+  "tests": [
+    {
+      "name": "1. Catalog Recommendation (Proactive Cross-sell)",
+      "command": "curl -X POST http://localhost:5000/api/agent/commerce -H \"Content-Type: application/json\" -d \"{\\\"category\\\": \\\"laptop\\\", \\\"useCase\\\": \\\"coding\\\", \\\"maxBudget\\\": 80000}\""
+    },
+    {
+      "name": "2. Catalog Recommendation (No Upsell due to single_item)",
+      "command": "curl -X POST http://localhost:5000/api/agent/commerce -H \"Content-Type: application/json\" -d \"{\\\"category\\\": \\\"laptop\\\", \\\"basketScope\\\": \\\"single_item\\\", \\\"maxBudget\\\": 60000}\""
+    },
+    {
+      "name": "3. Checkout Intent (Rejected - Missing Confirmation)",
+      "command": "curl -X POST http://localhost:5000/api/agent/commerce/checkout-intent -H \"Content-Type: application/json\" -d \"{\\\"productId\\\": \\\"prod_1\\\", \\\"buyerAgentId\\\": \\\"ai-agent-007\\\"}\""
+    },
+    {
+      "name": "4. Checkout Intent (Success)",
+      "command": "curl -X POST http://localhost:5000/api/agent/commerce/checkout-intent -H \"Content-Type: application/json\" -d \"{\\\"productId\\\": \\\"prod_1\\\", \\\"confirmed\\\": true, \\\"buyerAgentId\\\": \\\"ai-agent-007\\\"}\""
+    }
+  ]
+}

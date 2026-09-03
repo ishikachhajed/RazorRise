@@ -1,0 +1,147 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model MerchantConfig {
+  id                    String   @id @default("default")
+  maxDiscountPercent    Float    @default(5.0)
+  minMarginPercent      Float    @default(10.0)
+  allowUpsells          Boolean  @default(true)
+  allowIncentives       Boolean  @default(true)
+  blockedCategoriesJson String   @default("[]")
+  minOrderValue         Float    @default(0)
+  maxOrderValue         Float    @default(500000)
+  updatedAt             DateTime @updatedAt
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  role      String   @default("customer")
+  createdAt DateTime @default(now())
+  
+  carts     Cart[]
+  orders    Order[]
+  audits    AuditEvent[]
+}
+
+model Product {
+  id                    String   @id
+  name                  String
+  category              String
+  price                 Float
+  costPrice             Float    @default(0)
+  currency              String   @default("INR")
+  description           String
+  featuresJson          String   @default("[]")
+  specificationsJson    String   @default("{}")
+  rating                Float    @default(4.5)
+  stock                 Int      @default(10)
+  tagsJson              String   @default("[]")
+  complementaryJson     String   @default("[]")
+  discount              Float    @default(0)
+  imageUrl              String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  cartItems             CartItem[]
+}
+
+model Cart {
+  id        String     @id @default(uuid())
+  userId    String?
+  user      User?      @relation(fields: [userId], references: [id])
+  status    String     @default("active") // active, converted, abandoned
+  intentJson String    @default("{}")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  items     CartItem[]
+  orders    Order[]
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  cartId    String
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int      @default(1)
+  price     Float
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id              String     @id @default(uuid())
+  userId          String?
+  user            User?      @relation(fields: [userId], references: [id])
+  cartId          String?
+  cart            Cart?      @relation(fields: [cartId], references: [id])
+  razorpayOrderId String     @unique
+  amount          Float
+  currency        String     @default("INR")
+  status          String     @default("created") // created, paid, failed, cancelled
+  paymentStatus   String     @default("pending") // pending, captured, failed
+  itemsJson       String     // JSON array of item details
+  userConfirmed   Boolean    @default(false)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  payments        Payment[]
+  audits          AuditEvent[]
+}
+
+model Payment {
+  id                String   @id @default(uuid())
+  orderId           String
+  order             Order    @relation(fields: [orderId], references: [id])
+  razorpayPaymentId String   @unique
+  status            String   // captured, failed, authorized
+  method            String   @default("card")
+  amount            Float
+  createdAt         DateTime @default(now())
+}
+
+model AuditEvent {
+  id           String   @id @default(uuid())
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id])
+  orderId      String?
+  order        Order?   @relation(fields: [orderId], references: [id])
+  eventType    String   // USER_REQUEST, INTENT_EXTRACTED, CATALOG_SEARCH, RECOMMENDATION, UPSELL_SUGGESTION, USER_APPROVED, CHECKOUT_CONFIRMATION, RAZORPAY_ORDER_CREATED, PAYMENT_CAPTURED, PAYMENT_FAILED, MONEY_ACTION_BLOCKED
+  actor        String   // user, ai, system
+  action       String
+  reason       String?
+  input        String?
+  output       String?
+  status       String   @default("success") // success, failed, blocked
+  metadataJson String?  @default("{}")
+  createdAt    DateTime @default(now())
+}
+
+model AIRecommendation {
+  id          String   @id @default(uuid())
+  userId      String?
+  productId   String
+  score       Float
+  signalsJson String   @default("{}")
+  reason      String
+  decision    String   @default("RECOMMEND")
+  accepted    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model WebhookEvent {
+  id          String   @id @default(uuid())
+  webhookId   String   @unique
+  eventType   String
+  payloadJson String
+  processed   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}

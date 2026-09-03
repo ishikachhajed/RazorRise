@@ -1,0 +1,22 @@
+{
+  "name": "razorflow-ai",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "description": "End-to-End AI Commerce Agent for Razorpay AI Buildathon",
+  "scripts": {
+    "dev:server": "npm --prefix apps/server run dev",
+    "dev:web": "npm --prefix apps/web run dev",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:web\"",
+    "build": "npm --prefix apps/server run build && npm --prefix apps/web run build",
+    "db:setup": "npm --prefix apps/server run db:setup",
+    "db:seed": "npm --prefix apps/server run db:seed",
+    "test": "npm --prefix apps/server run test",
+    "benchmark": "npm --prefix apps/server run benchmark"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

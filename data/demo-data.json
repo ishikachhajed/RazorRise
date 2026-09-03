@@ -1,0 +1,156 @@
+{
+  "metrics": {
+    "totalRevenue": 482500,
+    "aiRevenue": 174200,
+    "aiOrders": 42,
+    "totalOrders": 118,
+    "averageOrderValue": 8910,
+    "upsellRevenue": 32400,
+    "crossSellRevenue": 18700,
+    "conversionRate": 12.8,
+    "recommendationAcceptanceRate": 78.4,
+    "upsellAcceptanceRate": 41.2
+  },
+  "insights": [
+    {
+      "id": "ins_01",
+      "type": "opportunity",
+      "title": "High-Affinity Laptop + Bag Bundle",
+      "description": "Laptop buyers demonstrate a 31% affinity for tech backpacks, but currently only 8% complete a combined purchase.",
+      "action": "Offer a 10% discount on Mokobara Transit Backpack when added during laptop recommendation.",
+      "estimatedRevenue": 22000,
+      "confidence": "High",
+      "category": "laptops"
+    },
+    {
+      "id": "ins_02",
+      "type": "upsell",
+      "title": "Developer Workstation Multi-Port Hub Opportunity",
+      "description": "Users searching for coding laptops with 2 or fewer USB-C ports frequently ask about external monitors.",
+      "action": "Promptly recommend UGREEN 9-in-1 USB-C Hub right after laptop selection.",
+      "estimatedRevenue": 15500,
+      "confidence": "Very High",
+      "category": "accessories"
+    },
+    {
+      "id": "ins_03",
+      "type": "conversion",
+      "title": "Gaming Laptop Cart Drop-off Recovery",
+      "description": "34% of gaming laptop shoppers abandon cart at price point > ₹70,000.",
+      "action": "Highlight sub-₹60,000 RTX 3050 alternatives (Nitro V 15) with gaming starter bundle.",
+      "estimatedRevenue": 28000,
+      "confidence": "Medium",
+      "category": "gaming"
+    }
+  ],
+  "auditEvents": [
+    {
+      "id": "evt_demo_101",
+      "timestamp": "2026-08-22T08:45:12.000Z",
+      "eventType": "USER_REQUEST",
+      "actor": "user",
+      "action": "Search Query",
+      "reason": "Customer entered shopping prompt",
+      "input": "I need a coding laptop under ₹70,000",
+      "output": "Extracted intent: laptop, max_budget=70000",
+      "status": "success",
+      "metadata": { "category": "laptop", "budget": 70000 }
+    },
+    {
+      "id": "evt_demo_102",
+      "timestamp": "2026-08-22T08:45:13.000Z",
+      "eventType": "INTENT_EXTRACTED",
+      "actor": "ai",
+      "action": "Structured Requirements Extraction",
+      "reason": "Parsed natural language into deterministic filter query",
+      "input": "I need a coding laptop under ₹70,000",
+      "output": "Category: laptop | Budget Max: 70000 | Tags: coding, programming, developer",
+      "status": "success",
+      "metadata": { "extractedTags": ["coding", "programming"] }
+    },
+    {
+      "id": "evt_demo_103",
+      "timestamp": "2026-08-22T08:45:14.000Z",
+      "eventType": "CATALOG_SEARCH",
+      "actor": "system",
+      "action": "Filtered Catalog Query",
+      "reason": "Search database for matching candidates within budget",
+      "input": "{ category: 'laptop', maxPrice: 70000 }",
+      "output": "Found 4 matching candidates",
+      "status": "success",
+      "metadata": { "candidateCount": 4 }
+    },
+    {
+      "id": "evt_demo_104",
+      "timestamp": "2026-08-22T08:45:15.000Z",
+      "eventType": "RECOMMENDATION",
+      "actor": "ai",
+      "action": "Ranked Product Selection",
+      "reason": "ZenBook Pro 14 OLED selected as Top Match (Score: 94/100)",
+      "input": "ZenBook Pro 14 OLED, Nitro V 15, ThinkBook 15 Gen 4",
+      "output": "ZenBook Pro 14 OLED (₹64,999) - Ideal for coding & 14-inch OLED portability",
+      "status": "success",
+      "metadata": { "productId": "prod_lap_01", "score": 94 }
+    },
+    {
+      "id": "evt_demo_105",
+      "timestamp": "2026-08-22T08:46:02.000Z",
+      "eventType": "UPSELL_SUGGESTION",
+      "actor": "ai",
+      "action": "Contextual Cross-Sell",
+      "reason": "ZenBook has 2 USB-C ports; UGREEN USB-C Hub expands connectivity for monitors",
+      "input": "Selected: prod_lap_01",
+      "output": "Suggested prod_acc_03 (UGREEN 9-in-1 Hub) @ ₹3,499",
+      "status": "success",
+      "metadata": { "upsellProductId": "prod_acc_03" }
+    },
+    {
+      "id": "evt_demo_106",
+      "timestamp": "2026-08-22T08:46:15.000Z",
+      "eventType": "USER_APPROVED",
+      "actor": "user",
+      "action": "Added Upsell to Cart",
+      "reason": "Customer confirmed addition of USB-C Hub to cart",
+      "input": "prod_acc_03",
+      "output": "Cart total updated to ₹68,498",
+      "status": "success",
+      "metadata": { "cartTotal": 68498 }
+    },
+    {
+      "id": "evt_demo_107",
+      "timestamp": "2026-08-22T08:47:00.000Z",
+      "eventType": "CHECKOUT_CONFIRMATION",
+      "actor": "user",
+      "action": "Gated Financial Gate Approved",
+      "reason": "User explicitly clicked 'Confirm & Pay' on checkout breakdown",
+      "input": "Cart subtotal: ₹68,498",
+      "output": "Creating Razorpay Test Order",
+      "status": "success",
+      "metadata": { "amount": 68498, "currency": "INR" }
+    },
+    {
+      "id": "evt_demo_108",
+      "timestamp": "2026-08-22T08:47:03.000Z",
+      "eventType": "RAZORPAY_ORDER_CREATED",
+      "actor": "system",
+      "action": "Backend Razorpay API Call",
+      "reason": "Created Razorpay order on server side with server-calculated price",
+      "input": "{ amount: 6849800, currency: 'INR' }",
+      "output": "order_rzp_demo_897123",
+      "status": "success",
+      "metadata": { "razorpayOrderId": "order_rzp_demo_897123" }
+    },
+    {
+      "id": "evt_demo_109",
+      "timestamp": "2026-08-22T08:47:25.000Z",
+      "eventType": "PAYMENT_CAPTURED",
+      "actor": "system",
+      "action": "Webhook Verification",
+      "reason": "Razorpay payment.captured webhook validated via HMAC-SHA256 signature",
+      "input": "pay_rzp_demo_991823",
+      "output": "Order marked PAID. Inventory updated.",
+      "status": "success",
+      "metadata": { "paymentId": "pay_rzp_demo_991823", "amount": 68498 }
+    }
+  ]
+}

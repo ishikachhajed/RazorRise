@@ -1,0 +1,693 @@
+[
+  {
+    "id": "prod_lap_01",
+    "name": "ZenBook Pro 14 OLED",
+    "category": "laptop",
+    "price": 64999,
+    "currency": "INR",
+    "description": "High-performance ultrabook featuring 14-inch 2.8K OLED display, Intel Core i7 13th Gen, 16GB LPDDR5 RAM, and 512GB NVMe SSD. Perfect for coding, content creation, and light gaming.",
+    "features": ["2.8K 90Hz OLED Display", "Intel Core i7-13700H", "16GB LPDDR5 RAM", "512GB PCIe 4.0 SSD", "Thunderbolt 4 support"],
+    "specifications": {
+      "processor": "Intel Core i7-13700H",
+      "ram": "16GB LPDDR5",
+      "storage": "512GB NVMe SSD",
+      "display": "14-inch 2.8K OLED",
+      "graphics": "Intel Iris Xe",
+      "weight": "1.4 kg"
+    },
+    "rating": 4.7,
+    "stock": 25,
+    "tags": ["coding", "programming", "developer", "ultrabook", "oled", "productivity"],
+    "complementary_products": ["prod_acc_01", "prod_acc_03", "prod_mouse_01"],
+    "discount": 5,
+    "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_lap_02",
+    "name": "Nitro V 15 Gaming Laptop",
+    "category": "laptop",
+    "price": 58999,
+    "currency": "INR",
+    "description": "Powerhouse gaming and engineering laptop with AMD Ryzen 7 7735HS, NVIDIA GeForce RTX 3050 (6GB VRAM), 16GB DDR5 RAM, and 512GB Gen4 SSD.",
+    "features": ["Dedicated RTX 3050 GPU", "144Hz FHD IPS Display", "Dual-fan cooling system", "RGB Backlit Keyboard"],
+    "specifications": {
+      "processor": "AMD Ryzen 7 7735HS",
+      "ram": "16GB DDR5",
+      "storage": "512GB Gen4 SSD",
+      "display": "15.6-inch FHD 144Hz",
+      "graphics": "NVIDIA RTX 3050 6GB",
+      "weight": "2.1 kg"
+    },
+    "rating": 4.5,
+    "stock": 18,
+    "tags": ["gaming", "coding", "gpu", "rtx", "performance", "student"],
+    "complementary_products": ["prod_mouse_02", "prod_acc_04", "prod_acc_02"],
+    "discount": 8,
+    "imageUrl": "https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_lap_03",
+    "name": "ThinkBook 15 Gen 4",
+    "category": "laptop",
+    "price": 49999,
+    "currency": "INR",
+    "description": "Reliable business and programming workstation with Intel Core i5 12th Gen, 16GB RAM, 512GB SSD, fingerprint reader, and battery life up to 10 hours.",
+    "features": ["16GB RAM out of box", "Spill-resistant keyboard", "Fingerprint power button", "Rapid Charge technology"],
+    "specifications": {
+      "processor": "Intel Core i5-1235U",
+      "ram": "16GB DDR4",
+      "storage": "512GB NVMe SSD",
+      "display": "15.6-inch FHD Anti-Glare",
+      "graphics": "Intel UHD Graphics",
+      "weight": "1.7 kg"
+    },
+    "rating": 4.6,
+    "stock": 30,
+    "tags": ["coding", "business", "budget", "work", "office", "student"],
+    "complementary_products": ["prod_acc_01", "prod_kb_01", "prod_mouse_01"],
+    "discount": 10,
+    "imageUrl": "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_lap_04",
+    "name": "Legion Slim 5 Gaming Beast",
+    "category": "laptop",
+    "price": 89999,
+    "currency": "INR",
+    "description": "Elite gaming and AI workload laptop with AMD Ryzen 7 7840HS, NVIDIA RTX 4060 8GB, 16GB DDR5 5600MHz RAM, and 1TB NVMe SSD.",
+    "features": ["NVIDIA RTX 4060 8GB VRAM", "165Hz WQXGA Display", "Legion Coldfront 5.0 Cooling", "Customizable RGB"],
+    "specifications": {
+      "processor": "AMD Ryzen 7 7840HS",
+      "ram": "16GB DDR5",
+      "storage": "1TB NVMe SSD",
+      "display": "16-inch WQXGA 165Hz",
+      "graphics": "NVIDIA RTX 4060 8GB",
+      "weight": "2.3 kg"
+    },
+    "rating": 4.8,
+    "stock": 12,
+    "tags": ["gaming", "rtx4060", "high-end", "ai", "rendering", "streaming"],
+    "complementary_products": ["prod_acc_04", "prod_mouse_02", "prod_mon_01"],
+    "discount": 4,
+    "imageUrl": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_lap_05",
+    "name": "IdeaPad Slim 3 Everyday Laptop",
+    "category": "laptop",
+    "price": 35999,
+    "currency": "INR",
+    "description": "Budget-friendly laptop powered by Intel Core i3 12th Gen, 8GB RAM, 512GB SSD, FHD display, ideal for web browsing, office tasks, and beginner coding.",
+    "features": ["Intel Core i3 12th Gen", "512GB Fast SSD", "FHD IPS Display", "Dolby Audio Speakers"],
+    "specifications": {
+      "processor": "Intel Core i3-1215U",
+      "ram": "8GB DDR4",
+      "storage": "512GB SSD",
+      "display": "15.6-inch FHD",
+      "graphics": "Intel UHD",
+      "weight": "1.63 kg"
+    },
+    "rating": 4.3,
+    "stock": 40,
+    "tags": ["budget", "student", "office", "entry-level"],
+    "complementary_products": ["prod_acc_01", "prod_mouse_03"],
+    "discount": 12,
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_lap_06",
+    "name": "MacBook Air M2 13-inch",
+    "category": "laptop",
+    "price": 94900,
+    "currency": "INR",
+    "description": "Strikingly thin design with Apple M2 chip 8-core CPU, 8-core GPU, 8GB Unified Memory, 256GB SSD, and up to 18 hours of battery life.",
+    "features": ["Apple M2 Chip", "Liquid Retina Display", "Silent Fanless Design", "18-Hour Battery Life"],
+    "specifications": {
+      "processor": "Apple M2 8-core",
+      "ram": "8GB Unified",
+      "storage": "256GB SSD",
+      "display": "13.6-inch Liquid Retina",
+      "graphics": "Apple 8-core GPU",
+      "weight": "1.24 kg"
+    },
+    "rating": 4.9,
+    "stock": 15,
+    "tags": ["macbook", "apple", "m2", "developer", "ios", "premium"],
+    "complementary_products": ["prod_acc_03", "prod_mouse_01", "prod_acc_01"],
+    "discount": 0,
+    "imageUrl": "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=800&q=80"
+  },
+
+  {
+    "id": "prod_phone_01",
+    "name": "Pixel 8a 5G",
+    "category": "smartphone",
+    "price": 43999,
+    "currency": "INR",
+    "description": "Google Tensor G3 powered camera phone with AI photo editing, 120Hz OLED display, 8GB RAM, 128GB storage, and 7 years of Android updates.",
+    "features": ["Tensor G3 AI Chip", "64MP Main Camera with Magic Eraser", "120Hz Smooth OLED", "IP67 Water Resistance"],
+    "specifications": {
+      "processor": "Google Tensor G3",
+      "ram": "8GB LPDDR5",
+      "storage": "128GB UFS 3.1",
+      "display": "6.1-inch FHD+ 120Hz OLED",
+      "battery": "4492 mAh",
+      "camera": "64MP + 13MP Ultrawide"
+    },
+    "rating": 4.6,
+    "stock": 20,
+    "tags": ["camera", "ai", "google", "5g", "clean-android", "compact"],
+    "complementary_products": ["prod_hp_03", "prod_acc_05"],
+    "discount": 5,
+    "imageUrl": "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_phone_02",
+    "name": "OnePlus 12R 5G",
+    "category": "smartphone",
+    "price": 39999,
+    "currency": "INR",
+    "description": "Performance powerhouse featuring Snapdragon 8 Gen 2, 16GB LPDDR5X RAM, 256GB storage, 1.5K 120Hz ProXDR display, and 100W SUPERVOOC charging.",
+    "features": ["Snapdragon 8 Gen 2", "100W Fast Charging (0 to 100 in 26m)", "5500 mAh Battery", "120Hz ProXDR Display"],
+    "specifications": {
+      "processor": "Snapdragon 8 Gen 2",
+      "ram": "16GB",
+      "storage": "256GB",
+      "display": "6.78-inch 1.5K AMOLED 120Hz",
+      "battery": "5500 mAh",
+      "camera": "50MP Sony IMX890 OIS"
+    },
+    "rating": 4.7,
+    "stock": 22,
+    "tags": ["flagship-killer", "fast-charging", "gaming", "performance", "5g"],
+    "complementary_products": ["prod_hp_01", "prod_acc_05"],
+    "discount": 6,
+    "imageUrl": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_phone_03",
+    "name": "Galaxy S23 FE 5G",
+    "category": "smartphone",
+    "price": 49999,
+    "currency": "INR",
+    "description": "Samsung fan edition phone with Exynos 2200, 50MP pro camera with 3x optical zoom, IP68 rating, and 120Hz Dynamic AMOLED 2X.",
+    "features": ["50MP Camera with 3x Optical Zoom", "Dynamic AMOLED 2X 120Hz", "IP68 Dust & Water Proof", "Wireless PowerShare"],
+    "specifications": {
+      "processor": "Exynos 2200",
+      "ram": "8GB",
+      "storage": "256GB",
+      "display": "6.4-inch FHD+ AMOLED 120Hz",
+      "battery": "4500 mAh",
+      "camera": "50MP + 12MP + 8MP 3x Zoom"
+    },
+    "rating": 4.5,
+    "stock": 14,
+    "tags": ["samsung", "camera", "waterproof", "wireless-charging"],
+    "complementary_products": ["prod_hp_02", "prod_acc_05"],
+    "discount": 10,
+    "imageUrl": "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_phone_04",
+    "name": "iQOO Neo 9 Pro 5G",
+    "category": "smartphone",
+    "price": 36999,
+    "currency": "INR",
+    "description": "Ultimate gaming smartphone powered by Snapdragon 8 Gen 2 + Supercomputing Chip Q1, 144Hz AMOLED, 120W FlashCharge.",
+    "features": ["Dual Chip Gaming Tech", "144Hz LTPO AMOLED", "120W Ultra Fast Charge", "Sony IMX920 OIS Camera"],
+    "specifications": {
+      "processor": "Snapdragon 8 Gen 2",
+      "ram": "8GB",
+      "storage": "256GB",
+      "display": "6.78-inch 144Hz AMOLED",
+      "battery": "5160 mAh",
+      "camera": "50MP Sony OIS"
+    },
+    "rating": 4.6,
+    "stock": 25,
+    "tags": ["gaming", "performance", "fast-charging", "value"],
+    "complementary_products": ["prod_hp_03"],
+    "discount": 8,
+    "imageUrl": "https://images.unsplash.com/photo-1565849904461-04a58ad377e0?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_phone_05",
+    "name": "Redmi Note 13 Pro+ 5G",
+    "category": "smartphone",
+    "price": 29999,
+    "currency": "INR",
+    "description": "Premium mid-ranger featuring 200MP OIS camera, 3D Curved 120Hz AMOLED display, IP68 rating, and 120W HyperCharge.",
+    "features": ["200MP OIS Camera", "3D Curved AMOLED 1.5K", "IP68 Water Resistance", "120W Fast Charger included"],
+    "specifications": {
+      "processor": "MediaTek Dimensity 7200 Ultra",
+      "ram": "12GB",
+      "storage": "256GB",
+      "display": "6.67-inch 1.5K 120Hz Curved",
+      "battery": "5000 mAh",
+      "camera": "200MP + 8MP + 2MP"
+    },
+    "rating": 4.4,
+    "stock": 35,
+    "tags": ["camera", "curved-display", "budget-flagship", "fast-charging"],
+    "complementary_products": ["prod_hp_04", "prod_acc_05"],
+    "discount": 10,
+    "imageUrl": "https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&w=800&q=80"
+  },
+
+  {
+    "id": "prod_hp_01",
+    "name": "Sony WH-1000XM5 Wireless ANC",
+    "category": "headphones",
+    "price": 29990,
+    "currency": "INR",
+    "description": "Industry-leading Active Noise Cancelling wireless headphones with Auto NC Optimizer, 30-hour battery life, and Speak-to-Chat function.",
+    "features": ["Industry-leading ANC with 8 mics", "30-Hour Battery Life", "Speak-to-Chat technology", "Multipoint connection"],
+    "specifications": {
+      "type": "Over-Ear Wireless",
+      "driver": "30mm precision",
+      "battery": "30 hours ANC ON",
+      "weight": "250 grams",
+      "connectivity": "Bluetooth 5.2 / 3.5mm"
+    },
+    "rating": 4.9,
+    "stock": 20,
+    "tags": ["anc", "noise-cancelling", "sony", "travel", "audiophile", "premium"],
+    "complementary_products": ["prod_acc_01", "prod_lap_01"],
+    "discount": 12,
+    "imageUrl": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_hp_02",
+    "name": "Bose QuietComfort 45",
+    "category": "headphones",
+    "price": 24999,
+    "currency": "INR",
+    "description": "Iconic quietness, comfort, and sound. High-fidelity audio with TriPort acoustic architecture and Quiet/Aware modes.",
+    "features": ["World-class Noise Cancellation", "24-Hour Battery Life", "Quiet & Aware Modes", "Ultra-soft ear cushions"],
+    "specifications": {
+      "type": "Over-Ear Wireless",
+      "battery": "24 hours",
+      "weight": "240 grams",
+      "charging": "USB-C quick charge (15m = 3h)"
+    },
+    "rating": 4.8,
+    "stock": 15,
+    "tags": ["comfort", "travel", "anc", "bose", "office"],
+    "complementary_products": ["prod_lap_03"],
+    "discount": 8,
+    "imageUrl": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_hp_03",
+    "name": "Sennheiser Accentum Wireless",
+    "category": "headphones",
+    "price": 11990,
+    "currency": "INR",
+    "description": "Audiophile-grade 50-hour battery life wireless ANC headphones with HD sound quality and hybrid active noise cancellation.",
+    "features": ["Unmatched 50-Hour Battery", "Hybrid Active Noise Cancellation", "Customizable EQ via Smart Control App"],
+    "specifications": {
+      "type": "Over-Ear Wireless",
+      "battery": "50 hours",
+      "driver": "37mm dynamic",
+      "codecs": "aptX HD, AAC, SBC"
+    },
+    "rating": 4.6,
+    "stock": 25,
+    "tags": ["battery-beast", "sennheiser", "anc", "music", "value"],
+    "complementary_products": ["prod_phone_01"],
+    "discount": 15,
+    "imageUrl": "https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_hp_04",
+    "name": "Realme Buds Air 5 Pro TWS",
+    "category": "headphones",
+    "price": 4999,
+    "currency": "INR",
+    "description": "Best budget TWS earbuds featuring 50dB Active Noise Cancellation, coaxial dual drivers, Hi-Res LDAC audio, and 40-hour playback.",
+    "features": ["50dB Deep ANC", "Coaxial Dual Drivers (11mm + 6mm)", "LDAC Hi-Res Audio", "40 hours total battery"],
+    "specifications": {
+      "type": "In-Ear TWS Earbuds",
+      "anc": "50dB Smart Adaptive",
+      "latency": "40ms ultra low",
+      "water_resistance": "IPX5"
+    },
+    "rating": 4.5,
+    "stock": 50,
+    "tags": ["budget", "tws", "earbuds", "anc", "value"],
+    "complementary_products": ["prod_phone_05"],
+    "discount": 20,
+    "imageUrl": "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_hp_05",
+    "name": "Sony WF-C700N ANC Earbuds",
+    "category": "headphones",
+    "price": 7990,
+    "currency": "INR",
+    "description": "Compact and lightweight true wireless earbuds with Active Noise Cancellation, Multipoint Bluetooth connection, and DSEE audio engine.",
+    "features": ["Digital Noise Cancelling", "Multipoint connection to 2 devices", "Ergonomic surface design", "15 hours with case"],
+    "specifications": {
+      "type": "TWS Earbuds",
+      "water_resistance": "IPX4 splash-proof",
+      "battery": "7.5h earbuds + 7.5h case",
+      "weight": "4.6g per bud"
+    },
+    "rating": 4.6,
+    "stock": 30,
+    "tags": ["tws", "sony", "compact", "anc", "lightweight"],
+    "complementary_products": ["prod_phone_02"],
+    "discount": 10,
+    "imageUrl": "https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?auto=format&fit=crop&w=800&q=80"
+  },
+
+  {
+    "id": "prod_mouse_01",
+    "name": "Logitech MX Master 3S Wireless Mouse",
+    "category": "mice",
+    "price": 8995,
+    "currency": "INR",
+    "description": "The ultimate productivity mouse with 8K DPI track-on-glass sensor, quiet clicks, MagSpeed electromagnetic scrolling, and ergonomic design.",
+    "features": ["8K DPI Darkfield Sensor", "MagSpeed 1000 lines/sec scroll", "Quiet Clicks (90% quieter)", "Flow cross-computer control"],
+    "specifications": {
+      "sensor": "Darkfield 8000 DPI",
+      "battery": "70 days on full charge",
+      "connectivity": "Logi Bolt / Bluetooth",
+      "buttons": "7 customizable buttons"
+    },
+    "rating": 4.9,
+    "stock": 35,
+    "tags": ["productivity", "developer", "coding", "ergonomic", "logitech", "mx"],
+    "complementary_products": ["prod_kb_01", "prod_lap_01", "prod_lap_03"],
+    "discount": 10,
+    "imageUrl": "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_mouse_02",
+    "name": "Razer DeathAdder V3 Wireless Gaming Mouse",
+    "category": "mice",
+    "price": 6499,
+    "currency": "INR",
+    "description": "Ultra-lightweight 63g ergonomic gaming mouse with Focus Pro 30K Optical Sensor, Gen-3 Optical Switches, and 90-hour battery life.",
+    "features": ["Ultra-lightweight 63 grams", "30,000 DPI Focus Pro Sensor", "Zero double-click optical switches", "HyperSpeed Wireless"],
+    "specifications": {
+      "weight": "63 grams",
+      "sensor": "Focus Pro 30K Optical",
+      "battery": "Up to 90 hours",
+      "polling_rate": "1000Hz"
+    },
+    "rating": 4.8,
+    "stock": 25,
+    "tags": ["gaming", "esports", "razer", "lightweight", "wireless"],
+    "complementary_products": ["prod_lap_02", "prod_lap_04", "prod_kb_02"],
+    "discount": 7,
+    "imageUrl": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_mouse_03",
+    "name": "Logitech Pebble M350 Silent Mouse",
+    "category": "mice",
+    "price": 1495,
+    "currency": "INR",
+    "description": "Minimalist, modern, and silent portable wireless mouse with dual Bluetooth/USB receiver connectivity and 18-month battery life.",
+    "features": ["Silent 90% reduced click noise", "Ultra-portable slim design", "18-Month battery life", "Dual mode connect"],
+    "specifications": {
+      "connectivity": "Bluetooth + 2.4GHz Nano receiver",
+      "dpi": "1000 DPI",
+      "battery": "1 AA battery included"
+    },
+    "rating": 4.4,
+    "stock": 60,
+    "tags": ["budget", "silent", "portable", "minimalist", "travel"],
+    "complementary_products": ["prod_lap_05"],
+    "discount": 15,
+    "imageUrl": "https://images.unsplash.com/photo-1613141411244-0e4ac259d217?auto=format&fit=crop&w=800&q=80"
+  },
+
+  {
+    "id": "prod_kb_01",
+    "name": "Logitech MX Keys S Wireless Mechanical Keyboard",
+    "category": "keyboards",
+    "price": 11995,
+    "currency": "INR",
+    "description": "Master series low-profile mechanical keyboard with Tactile Quiet switches, smart backlighting, and Smart Actions macro keys.",
+    "features": ["Low-profile Tactile Quiet Mechanical Switches", "Smart proximity backlighting", "Multi-device connectivity (3 devices)", "Logi Options+ Smart Actions"],
+    "specifications": {
+      "switches": "Kailh Choc Low Profile Tactile Quiet",
+      "layout": "Full size with Numpad",
+      "backlight": "White LED with proximity sensor",
+      "battery": "Up to 15 days with backlight"
+    },
+    "rating": 4.8,
+    "stock": 20,
+    "tags": ["mechanical", "productivity", "coding", "logitech", "developer", "mac-windows"],
+    "complementary_products": ["prod_mouse_01", "prod_mon_01"],
+    "discount": 5,
+    "imageUrl": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_kb_02",
+    "name": "Keychron K2 V2 Wireless Mechanical Keyboard",
+    "category": "keyboards",
+    "price": 7499,
+    "currency": "INR",
+    "description": "75% compact wireless mechanical keyboard with Gateron G Pro Red switches, RGB backlighting, Mac and Windows layouts, and 4000mAh battery.",
+    "features": ["Gateron G Pro Hot-Swappable Switches", "75% Compact 84-Key Layout", "Mac & Windows Keycaps included", "4000mAh Long Battery"],
+    "specifications": {
+      "layout": "75% Compact (84 keys)",
+      "switches": "Gateron G Pro Red / Brown",
+      "connectivity": "Bluetooth 5.1 & Type-C Wired",
+      "battery": "4000 mAh"
+    },
+    "rating": 4.7,
+    "stock": 30,
+    "tags": ["keychron", "75percent", "mechanical", "coding", "mac-friendly", "hot-swap"],
+    "complementary_products": ["prod_mouse_01", "prod_mouse_02"],
+    "discount": 8,
+    "imageUrl": "https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_kb_03",
+    "name": "Redragon K552 Kumara RGB Mechanical Keyboard",
+    "category": "keyboards",
+    "price": 2899,
+    "currency": "INR",
+    "description": "Compact Tenkeyless (TKL) mechanical gaming keyboard with dustproof mechanical switches, aluminum chassis, and RGB lighting modes.",
+    "features": ["Custom Mechanical Dustproof Blue Switches", "TKL Compact Space-saving design", "Metal-ABS Construction", "18 RGB Lighting Modes"],
+    "specifications": {
+      "layout": "Tenkeyless 87 keys",
+      "switches": "Tactile Clicky Blue",
+      "cable": "Gold-plated USB wired"
+    },
+    "rating": 4.5,
+    "stock": 45,
+    "tags": ["budget", "gaming", "tkl", "rgb", "entry-mechanical"],
+    "complementary_products": ["prod_mouse_02"],
+    "discount": 15,
+    "imageUrl": "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?auto=format&fit=crop&w=800&q=80"
+  },
+
+  {
+    "id": "prod_mon_01",
+    "name": "LG UltraFine 27-inch 4K IPS Monitor",
+    "category": "monitors",
+    "price": 27999,
+    "currency": "INR",
+    "description": "27-inch 4K UHD (3840x2160) IPS display with HDR10, USB Type-C with 60W Power Delivery, sRGB 99% color accuracy, and height-adjustable stand.",
+    "features": ["4K UHD (3840 x 2160) IPS Display", "USB-C Single Cable Solution (60W PD)", "sRGB 99% Color Calibration", "AMD FreeSync"],
+    "specifications": {
+      "screen_size": "27 inch",
+      "resolution": "3840 x 2160 4K",
+      "panel": "IPS Anti-glare",
+      "ports": "USB-C, HDMI x2, DisplayPort"
+    },
+    "rating": 4.8,
+    "stock": 16,
+    "tags": ["4k", "monitor", "coding", "design", "usb-c", "productivity"],
+    "complementary_products": ["prod_lap_01", "prod_lap_06", "prod_acc_03"],
+    "discount": 10,
+    "imageUrl": "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_mon_02",
+    "name": "BenQ ZOWIE XL2411K 144Hz Gaming Monitor",
+    "category": "monitors",
+    "price": 14999,
+    "currency": "INR",
+    "description": "Esports-grade 24-inch 144Hz 1ms gaming monitor with DyAc DyAc technology for motion clarity and Black eQualizer for dark scene visibility.",
+    "features": ["144Hz Refresh Rate & 1ms Response", "DyAc Dynamic Accuracy Technology", "Black eQualizer & Color Vibrance", "S-Switch compatible"],
+    "specifications": {
+      "screen_size": "24 inch",
+      "resolution": "1920 x 1080 Full HD",
+      "refresh_rate": "144Hz",
+      "panel": "TN Fast Response"
+    },
+    "rating": 4.6,
+    "stock": 20,
+    "tags": ["gaming", "144hz", "esports", "fps", "benq"],
+    "complementary_products": ["prod_lap_02", "prod_mouse_02"],
+    "discount": 12,
+    "imageUrl": "https://images.unsplash.com/photo-1547119957-637f8679db1e?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_mon_03",
+    "name": "Samsung Odyssey G5 27-inch WQHD Curved",
+    "category": "monitors",
+    "price": 21999,
+    "currency": "INR",
+    "description": "Immersive 1000R curved gaming monitor with 2560x1440 resolution, 165Hz refresh rate, 1ms MPRT, and AMD FreeSync Premium.",
+    "features": ["1000R Curve matching human field of view", "WQHD 1440p Resolution", "165Hz Refresh Rate & 1ms MPRT", "HDR10 Support"],
+    "specifications": {
+      "screen_size": "27 inch",
+      "resolution": "2560 x 1440 WQHD",
+      "curvature": "1000R",
+      "refresh_rate": "165Hz"
+    },
+    "rating": 4.7,
+    "stock": 12,
+    "tags": ["curved", "2k", "1440p", "165hz", "gaming", "samsung"],
+    "complementary_products": ["prod_lap_04"],
+    "discount": 8,
+    "imageUrl": "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=800&q=80"
+  },
+
+  {
+    "id": "prod_bag_01",
+    "name": "Mokobara The Transit Backpack 21L",
+    "category": "backpacks",
+    "price": 4999,
+    "currency": "INR",
+    "description": "Premium tech commuter backpack crafted with vegan leather accents, dedicated 15.6-inch laptop compartment, power bank slot, and TSA lock.",
+    "features": ["Dedicated 15.6-inch padded laptop sleeve", "Water-resistant 900D fabric", "Luggage pass-through strap", "Hidden anti-theft back pocket"],
+    "specifications": {
+      "capacity": "21 Liters",
+      "laptop_size": "Up to 16 inch",
+      "material": "Waterproof Polyester & Vegan Leather",
+      "weight": "850 grams"
+    },
+    "rating": 4.8,
+    "stock": 40,
+    "tags": ["backpack", "travel", "laptop-bag", "waterproof", "premium", "commute"],
+    "complementary_products": ["prod_lap_01", "prod_lap_03", "prod_lap_06"],
+    "discount": 10,
+    "imageUrl": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_bag_02",
+    "name": "Wildcraft Workpacks 30L Tech Bag",
+    "category": "backpacks",
+    "price": 2199,
+    "currency": "INR",
+    "description": "Spacious everyday tech backpack with 3 large compartments, rain cover included, tablet sleeve, and contoured shoulder straps.",
+    "features": ["Integrated Rain Cover", "3 Large Compartments + Organizer", "15.6-inch Padded Sleeve", "Ergonomic Back System"],
+    "specifications": {
+      "capacity": "30 Liters",
+      "material": "Ripstop Nylon",
+      "warranty": "5 Years"
+    },
+    "rating": 4.5,
+    "stock": 50,
+    "tags": ["budget", "backpack", "raincover", "student", "wildcraft"],
+    "complementary_products": ["prod_lap_02", "prod_lap_05"],
+    "discount": 15,
+    "imageUrl": "https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?auto=format&fit=crop&w=800&q=80"
+  },
+
+  {
+    "id": "prod_acc_01",
+    "name": "Anker 737 Power Bank 24,000mAh (140W)",
+    "category": "accessories",
+    "price": 9999,
+    "currency": "INR",
+    "description": "Ultra-powerful 140W fast-charging power bank capable of charging laptops (MacBook Pro, ZenBook) and phones simultaneously with smart digital display.",
+    "features": ["140W Two-Way Fast Charging", "24,000mAh Capacity", "Smart Digital Display", "Charges MacBook Pro to 50% in 40 mins"],
+    "specifications": {
+      "capacity": "24,000 mAh",
+      "max_output": "140W PD 3.1",
+      "ports": "2x USB-C, 1x USB-A"
+    },
+    "rating": 4.9,
+    "stock": 25,
+    "tags": ["powerbank", "fast-charging", "laptop-charger", "anker", "travel"],
+    "complementary_products": ["prod_lap_01", "prod_lap_06", "prod_phone_01"],
+    "discount": 8,
+    "imageUrl": "https://images.unsplash.com/photo-1609592424074-0f2c418a01f5?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_acc_02",
+    "name": "Klim Wind Laptop Cooling Pad",
+    "category": "accessories",
+    "price": 2499,
+    "currency": "INR",
+    "description": "High-speed laptop cooling stand with 4 powerful 1200 RPM fans, dual USB ports, and RGB LED lighting for laptops up to 17.3 inches.",
+    "features": ["4 Heavy-duty 1200 RPM fans", "Reduces internal temperature by 15°C", "Dual USB Passthrough ports", "Ergonomic 2-level incline"],
+    "specifications": {
+      "fan_speed": "1200 RPM",
+      "noise_level": "26 dB",
+      "compatibility": "11 to 17.3 inch laptops"
+    },
+    "rating": 4.6,
+    "stock": 35,
+    "tags": ["cooling-pad", "gaming", "laptop-stand", "temperature", "rgb"],
+    "complementary_products": ["prod_lap_02", "prod_lap_04"],
+    "discount": 10,
+    "imageUrl": "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_acc_03",
+    "name": "UGREEN 9-in-1 USB-C Hub Docking Station",
+    "category": "accessories",
+    "price": 3499,
+    "currency": "INR",
+    "description": "Essential multiport USB-C adapter with 4K HDMI, Gigabit Ethernet, 100W Power Delivery, SD/TF card reader, and 3x USB 3.0 ports.",
+    "features": ["4K 60Hz HDMI Output", "100W PD Pass-through Charging", "1000Mbps Gigabit RJ45 Ethernet", "5Gbps Data Transfer"],
+    "specifications": {
+      "ports": "HDMI, RJ45, 100W PD, SD, MicroSD, 3x USB 3.0",
+      "compatibility": "MacBook, Windows, iPad Pro"
+    },
+    "rating": 4.7,
+    "stock": 45,
+    "tags": ["usb-c-hub", "adapter", "macbook-accessory", "dongle", "hdmi", "ethernet"],
+    "complementary_products": ["prod_lap_01", "prod_lap_06", "prod_mon_01"],
+    "discount": 12,
+    "imageUrl": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_acc_04",
+    "name": "Cosmic Byte Desk Mat Extended Mousepad (900x400mm)",
+    "category": "accessories",
+    "price": 799,
+    "currency": "INR",
+    "description": "XL desk pad with anti-fray stitched edges, non-slip rubber base, micro-weave cloth surface for ultra-smooth optical mouse tracking.",
+    "features": ["Extra Large 900x400x3mm", "Spill-resistant coating", "Stitched anti-fray borders", "Anti-skid rubber base"],
+    "specifications": {
+      "dimensions": "900 x 400 x 3 mm",
+      "surface": "Control micro-texture fabric"
+    },
+    "rating": 4.6,
+    "stock": 70,
+    "tags": ["desk-mat", "mousepad", "gaming", "setup", "budget"],
+    "complementary_products": ["prod_mouse_01", "prod_mouse_02", "prod_kb_02"],
+    "discount": 20,
+    "imageUrl": "https://images.unsplash.com/photo-1616440342231-9b7d34195159?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "prod_acc_05",
+    "name": "Stuffcool 65W GaN Dual USB-C Wall Charger",
+    "category": "accessories",
+    "price": 2499,
+    "currency": "INR",
+    "description": "Ultra-compact Gallium Nitride (GaN) fast charger capable of charging laptops, MacBooks, iPhones, and Android phones fast.",
+    "features": ["65W Dual Type-C Output", "GaN Chip Technology (50% smaller)", "PPS fast charge for Samsung/Pixel"],
+    "specifications": {
+      "power": "65W Max",
+      "ports": "2x USB Type-C PD"
+    },
+    "rating": 4.7,
+    "stock": 50,
+    "tags": ["charger", "gan", "fast-charging", "type-c", "travel"],
+    "complementary_products": ["prod_phone_01", "prod_phone_02", "prod_lap_01"],
+    "discount": 10,
+    "imageUrl": "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80"
+  }
+]
