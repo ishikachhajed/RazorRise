@@ -11,6 +11,7 @@ export interface ExtractedIntent {
   hasDiscountIntent?: boolean;
   isComparisonRequest?: boolean;
   hasCrossSold?: boolean;
+  shownProductIds?: string[];
   rawQuery: string;
 }
 

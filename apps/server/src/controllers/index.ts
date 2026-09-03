@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { CommerceAgent } from '../agents/CommerceAgent.js';
+import { ShopEverywhereAgent } from '../agents/ShopEverywhereAgent.js';
+import { ShoppingService } from '../services/ShoppingService.js';
 import { CatalogService } from '../services/CatalogService.js';
 import { CartService } from '../services/CartService.js';
 import { PaymentService } from '../services/PaymentService.js';
@@ -12,15 +14,45 @@ export class CommerceController {
   // ──────────────────────────────────────────────────────────────────────
   static async handleChat(req: Request, res: Response) {
     try {
-      const { message, cartId, userId, accumulatedIntent, conversationHistory } = req.body;
+      const { message, cartId, userId, accumulatedIntent, conversationHistory, mode, accumulatedContext } = req.body;
       if (!message || typeof message !== 'string') {
         return res.status(400).json({ error: 'Message field is required' });
       }
+
+      // Route to Shop Everywhere agent when mode is set
+      if (mode === 'shop_everywhere') {
+        const response = await ShopEverywhereAgent.handleChat({
+          message,
+          userId,
+          accumulatedContext: accumulatedContext || {}
+        });
+        return res.json(response);
+      }
+
+      // Default: existing My Store agent — completely untouched
       const response = await CommerceAgent.handleChat({ message, cartId, userId, accumulatedIntent, conversationHistory });
       return res.json(response);
     } catch (err: any) {
       console.error('Chat controller error:', err);
       return res.status(500).json({ error: err.message || 'Failed to process AI chat request' });
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Shop Everywhere — Direct Product Search Endpoint
+  // ──────────────────────────────────────────────────────────────────────
+  static async handleShopEverywhereSearch(req: Request, res: Response) {
+    try {
+      const { query, maxPrice, minPrice, category } = req.body;
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ error: 'query field is required' });
+      }
+      const products = await ShoppingService.searchProducts({ query, maxPrice, minPrice, category });
+      return res.json({ products });
+    } catch (err: any) {
+      // Never expose SerpApi URL or key in error responses
+      console.error('[SHOP_EVERYWHERE_SEARCH_ERROR]', err.message);
+      return res.status(500).json({ error: err.message || 'External product search failed. Please try again.' });
     }
   }
 

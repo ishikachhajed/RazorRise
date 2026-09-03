@@ -71,9 +71,20 @@ export class GroqAIProvider implements AIProvider {
     return content;
   }
 
-  async extractIntent(userQuery: string): Promise<ExtractedIntent> {
+  async extractIntent(userQuery: string, previousIntent?: ExtractedIntent): Promise<ExtractedIntent> {
     try {
       console.log(`[GROQ AI] Analyzing query: "${userQuery}"`);
+      let promptContext = '';
+      if (previousIntent && previousIntent.category !== 'unknown') {
+        promptContext = `
+Previous Intent Context:
+- Category: ${previousIntent.category}
+- Raw Query: ${previousIntent.rawQuery}
+
+If the user's new query is a refinement (e.g., "cheaper", "more", "under 2000", "black one"), YOU MUST output the exact same category ("${previousIntent.category}"). Do NOT output "unknown" or a different category unless the user is explicitly changing the subject.
+`;
+      }
+
       const systemPrompt = `You are the intent extraction engine for an e-commerce AI commerce agent.
 Analyze the user's shopping query and return a structured JSON response.
 Do NOT include any markdown packaging (like \`\`\`json). Return only a raw JSON object.
@@ -91,7 +102,8 @@ Rules:
 - If query contains "setup", "everything", "bundle" → basketScope = "complete_setup".
 - If query contains "compare", "vs", "difference between", "which is better" → set isComparisonRequest = true.
 - If query contains "discount", "offer", "coupon", "% off" → set hasDiscountIntent = true.
-
+- If the query is just a follow-up refinement (e.g. "more options", "cheaper ones", "under 2000"), carry over the relevant previous intent context if provided.
+${promptContext}
 JSON Schema:
 {
   "category": "string",
@@ -111,7 +123,8 @@ JSON Schema:
         { role: 'user', content: `Query: "${userQuery}"` }
       ];
 
-      const rawJson = await this.callGroq(messages, { type: 'json_object' }, this.extractModelName);
+      let rawJson = await this.callGroq(messages, undefined, this.extractModelName);
+      rawJson = rawJson.replace(/```json/gi, '').replace(/```/g, '').trim();
       const parsed = JSON.parse(rawJson);
 
       return {
@@ -129,7 +142,7 @@ JSON Schema:
       } as any;
     } catch (error: any) {
       console.warn(`[GROQ AI FALLBACK] Intent extraction failed, falling back to Mock AI Provider. Reason:`, error.message);
-      return this.fallbackProvider.extractIntent(userQuery);
+      return this.fallbackProvider.extractIntent(userQuery, previousIntent);
     }
   }
 

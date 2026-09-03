@@ -185,8 +185,8 @@ export class CommerceAgent {
 
     // ── CORE CONVERSATIONAL FLOW WITH MEMORY ──
 
-    // Step 1: Extract intent from the CURRENT message
-    const freshIntent = await aiProvider.extractIntent(cleanMessage);
+    // Step 1: Extract intent from the CURRENT message (pass accumulated to preserve context on follow-ups)
+    const freshIntent = await aiProvider.extractIntent(cleanMessage, accumulatedIntent);
 
     // Step 2: MERGE fresh intent into accumulated intent from previous turns
     const baseIntent: ExtractedIntent = accumulatedIntent || {
@@ -236,8 +236,20 @@ export class CommerceAgent {
       metadata: mergedIntent
     });
 
+    // If the user is asking for more options, exclude previously shown items
+    if (lower.includes('more') || lower.includes('other') || lower.includes('another')) {
+      if (baseIntent.shownProductIds) {
+        (mergedIntent as any).excludeIds = baseIntent.shownProductIds;
+      }
+    }
+
     // Step 3 to 5: Execute Core Commerce Logic
     const coreResult = await CommerceAgent.processCoreCommerceLogic(mergedIntent, cartId, userId);
+
+    // Update shownProductIds in the merged intent for the next turn
+    if (coreResult.candidates && coreResult.candidates.length > 0) {
+      mergedIntent.shownProductIds = coreResult.candidates.map((c: any) => c.id);
+    }
 
     // Step 6: Generate customer-facing response using MERGED intent
     let aiMessage = '';
@@ -291,7 +303,8 @@ export class CommerceAgent {
           category: intent.category,
           maxBudget: intent.budgetMax,
           useCases: intent.useCases,
-          features: intent.features
+          features: intent.features,
+          excludeIds: (intent as any).excludeIds
         },
         cartId,
         userId

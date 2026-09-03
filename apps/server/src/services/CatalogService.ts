@@ -7,6 +7,7 @@ export interface ProductQuery {
   useCases?: string[];
   features?: string[];
   searchQuery?: string;
+  excludeIds?: string[];
 }
 
 export interface ScoredProduct {
@@ -65,6 +66,9 @@ export class CatalogService {
     const candidateProducts: ScoredProduct[] = [];
 
     for (const p of parsedProducts) {
+      if (query.excludeIds && query.excludeIds.includes(p.id)) {
+        continue;
+      }
       // Hard filter category if specified
       if (query.category && query.category !== 'all') {
         const catClean = query.category.toLowerCase().trim();

@@ -3,8 +3,12 @@ import { CommerceController } from '../controllers/index.js';
 
 const router = Router();
 
-// AI Chat
+// AI Chat (My Store + Shop Everywhere routing via mode field)
 router.post('/ai/chat', CommerceController.handleChat);
+
+// Shop Everywhere — External product search (SerpApi proxy, key never exposed to frontend)
+router.post('/shopping/search', CommerceController.handleShopEverywhereSearch);
+
 
 // Catalog - Agent Readable
 router.get('/products', CommerceController.getProducts);

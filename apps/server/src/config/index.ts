@@ -11,8 +11,10 @@ export const config = {
   openaiApiKey: process.env.OPENAI_API_KEY || '',
   geminiApiKey: process.env.GEMINI_API_KEY || '',
   groqApiKey: process.env.GROQ_API_KEY || '',
+  serpApiKey: process.env.SERPAPI_KEY || '',
   razorpayKeyId: process.env.RAZORPAY_KEY_ID || 'rzp_test_mock_123456',
   razorpayKeySecret: process.env.RAZORPAY_KEY_SECRET || 'mock_secret_key_123456',
   razorpayWebhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET || 'mock_webhook_secret_123456',
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173'
 };
+

@@ -59,16 +59,64 @@ export interface AuditEvent {
   createdAt: string;
 }
 
+// ── Shop Everywhere Types ──────────────────────────────────────────────────
+
+export interface ExternalProduct {
+  title: string;
+  price: string;
+  originalPrice?: string;
+  discount?: string;
+  source: string;
+  rating?: string;
+  reviews?: string;
+  thumbnail?: string;
+  productUrl: string;
+}
+
+export interface ComparisonData {
+  summary: string;
+  factors?: string[];
+}
+
+export interface ShopEverywhereContext {
+  lastQuery?: string;
+  lastCategory?: string;
+  lastMaxPrice?: number;
+  lastMinPrice?: number;
+  lastProducts?: ExternalProduct[];
+  preferredBrands?: string[];
+  conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
+}
+
 export class ApiService {
-  static async sendChatMessage(message: string, cartId?: string, accumulatedIntent?: any) {
+  static async sendChatMessage(
+    message: string,
+    cartId?: string,
+    accumulatedIntent?: any,
+    mode: 'my_store' | 'shop_everywhere' = 'my_store',
+    accumulatedContext?: ShopEverywhereContext
+  ) {
     const res = await fetch(`${API_BASE}/ai/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, cartId, accumulatedIntent })
+      body: JSON.stringify({ message, cartId, accumulatedIntent, mode, accumulatedContext })
     });
     if (!res.ok) {
       const err = await res.json();
       throw new Error(err.error || 'Failed to send message');
+    }
+    return res.json();
+  }
+
+  static async searchShopping(query: string, maxPrice?: number, minPrice?: number, category?: string) {
+    const res = await fetch(`${API_BASE}/shopping/search`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, maxPrice, minPrice, category })
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'External product search failed');
     }
     return res.json();
   }

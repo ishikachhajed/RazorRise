@@ -35,7 +35,8 @@ export class ToolRegistry {
           category: 'string',
           maxBudget: 'number',
           useCases: 'array of strings',
-          features: 'array of strings'
+          features: 'array of strings',
+          excludeIds: 'array of strings (optional)'
         }
       },
       {
@@ -86,7 +87,8 @@ export class ToolRegistry {
           category: args.category,
           maxBudget: args.maxBudget,
           useCases: args.useCases,
-          features: args.features
+          features: args.features,
+          excludeIds: args.excludeIds
         });
 
         await AuditService.logEvent({
