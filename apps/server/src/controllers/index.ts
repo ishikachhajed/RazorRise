@@ -441,7 +441,7 @@ export class CommerceController {
       });
 
       // Parse and normalise itemsJson for the frontend
-      const formattedOrders = orders.map(o => {
+      const formattedOrders = orders.map((o: any) => {
         let items: any[] = [];
         try {
           const parsed = JSON.parse(o.itemsJson || '[]');
@@ -481,24 +481,24 @@ export class CommerceController {
       const capturedOrders = await prisma.order.findMany({ where: { status: 'paid' } });
       const failedOrdersCount = await prisma.order.count({ where: { status: 'failed' } });
 
-      const totalRevenue = capturedOrders.reduce((sum, o) => sum + o.amount, 0);
+      const totalRevenue = capturedOrders.reduce((sum: number, o: any) => sum + o.amount, 0);
       const totalOrders = capturedOrders.length;
       
-      const aiOrdersList = capturedOrders.filter(o => o.userId && o.userId.includes('agent'));
-      const aiRevenue = aiOrdersList.reduce((sum, o) => sum + o.amount, 0);
+      const aiOrdersList = capturedOrders.filter((o: any) => o.userId && o.userId.includes('agent'));
+      const aiRevenue = aiOrdersList.reduce((sum: number, o: any) => sum + o.amount, 0);
       const aiOrders = aiOrdersList.length;
 
       const averageOrderValue = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
       
       // Calculate upsell revenue simply by items past the first one, or if items include 'accessories'
       // For simplicity, we assume an order with >1 item is a cross-sold order
-      const crossSoldOrders = capturedOrders.filter(o => {
+      const crossSoldOrders = capturedOrders.filter((o: any) => {
         try {
           const items = JSON.parse(o.itemsJson);
           return items.length > 1;
         } catch(e) { return false; }
       });
-      const upsellRevenue = crossSoldOrders.reduce((sum, o) => {
+      const upsellRevenue = crossSoldOrders.reduce((sum: number, o: any) => {
         try {
            const items = JSON.parse(o.itemsJson);
            // Assumes first item is top product, rest are accessories
@@ -537,10 +537,10 @@ export class CommerceController {
       const upsellEvents = await prisma.auditEvent.findMany({ where: { eventType: 'UPSELL_SUGGESTION' } });
       const recommendationCount = await prisma.auditEvent.count({ where: { eventType: 'RECOMMENDATION' } });
       
-      const usersOfferedUpsell = new Set(upsellEvents.map(e => e.userId).filter(Boolean));
+      const usersOfferedUpsell = new Set(upsellEvents.map((e: any) => e.userId).filter(Boolean));
       
-      const paidOrdersWhereUpsellOffered = paidOrders.filter(o => usersOfferedUpsell.has(o.userId));
-      const paidOrdersWithUpsellItem = paidOrdersWhereUpsellOffered.filter(o => {
+      const paidOrdersWhereUpsellOffered = paidOrders.filter((o: any) => usersOfferedUpsell.has(o.userId));
+      const paidOrdersWithUpsellItem = paidOrdersWhereUpsellOffered.filter((o: any) => {
         try {
           const items = JSON.parse(o.itemsJson);
           return items.length > 1;
@@ -555,7 +555,7 @@ export class CommerceController {
         ? ((paidOrders.length / recommendationCount) * 100).toFixed(1)
         : '0.0';
 
-      const aiOrders = paidOrders.filter(o => o.userId && o.userId.includes('agent'));
+      const aiOrders = paidOrders.filter((o: any) => o.userId && o.userId.includes('agent'));
       const humanOrders = paidOrders.length - aiOrders.length;
 
       const insightsData = [

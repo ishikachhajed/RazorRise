@@ -53,7 +53,7 @@ export class AuditService {
       take: filter?.limit || 100
     });
 
-    return events.map((e) => ({
+    return events.map((e: any) => ({
       ...e,
       metadata: e.metadataJson ? JSON.parse(e.metadataJson) : {}
     }));

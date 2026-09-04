@@ -54,7 +54,7 @@ export class CatalogService {
     const products = await prisma.product.findMany();
     
     // Parse DB objects
-    const parsedProducts = products.map((p) => ({
+    const parsedProducts = products.map((p: any) => ({
       ...p,
       features: JSON.parse(p.featuresJson) as string[],
       specifications: JSON.parse(p.specificationsJson) as Record<string, string>,
@@ -118,7 +118,7 @@ export class CatalogService {
         let matched = 0;
         for (const uc of query.useCases) {
           const ucClean = uc.toLowerCase();
-          if (p.tags.some(t => t.toLowerCase().includes(ucClean)) || p.description.toLowerCase().includes(ucClean)) {
+          if (p.tags.some((t: any) => t.toLowerCase().includes(ucClean)) || p.description.toLowerCase().includes(ucClean)) {
             matched++;
           }
         }
