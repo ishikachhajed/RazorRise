@@ -182,7 +182,7 @@ export class CatalogService {
         where: { category: { in: ['accessories', 'mice', 'backpacks'] } },
         take: 3
       });
-      return fallback.map(p => ({
+      return fallback.map((p: any) => ({
         ...p,
         features: JSON.parse(p.featuresJson),
         specifications: JSON.parse(p.specificationsJson),
@@ -198,7 +198,7 @@ export class CatalogService {
       where: { id: { in: mainProduct.complementaryProducts } }
     });
 
-    return compProducts.map(p => ({
+    return compProducts.map((p: any) => ({
       ...p,
       features: JSON.parse(p.featuresJson),
       specifications: JSON.parse(p.specificationsJson),
