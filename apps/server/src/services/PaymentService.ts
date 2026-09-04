@@ -90,6 +90,19 @@ export class PaymentService {
       throw new Error('Razorpay SDK is not initialized. Please check RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in .env');
     }
 
+    if (userId) {
+      await prisma.user.upsert({
+        where: { id: userId },
+        update: {},
+        create: {
+          id: userId,
+          name: 'Guest',
+          email: `${userId}@guest.local`,
+          role: 'customer'
+        }
+      });
+    }
+
     let order = await prisma.order.findFirst({
       where: {
         cartId: cart.id,

@@ -15,6 +15,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { downloadInvoice } from '../utils/invoice';
+import { getPersistentUserId } from '../utils/session';
 
 type ChatMode = 'my_store' | 'shop_everywhere';
 
@@ -25,6 +26,8 @@ interface ChatMessage {
   // My Store fields
   intent?: any;
   recommendations?: Product[];
+  recommendedProduct?: Product;
+  recommendedExplanation?: string;
   upsellSuggestion?: any;
   incentive?: { type: string; percent: number };
   decision?: string;
@@ -65,6 +68,7 @@ export const ShopPage: React.FC = () => {
     localStorage.setItem(storageKey, generated);
     return generated;
   });
+  const [userId] = useState(() => getPersistentUserId());
 
   // ── Shared state ──────────────────────────────────────────────────────────
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -76,7 +80,7 @@ export const ShopPage: React.FC = () => {
   // ── Init ──────────────────────────────────────────────────────────────────
   useEffect(() => {
     const storedCartId = localStorage.getItem('razorflow_cart_id');
-    ApiService.getCart(storedCartId || undefined).then((c) => {
+    ApiService.getCart(storedCartId || undefined, userId).then((c) => {
       setCart(c);
       localStorage.setItem('razorflow_cart_id', c.id);
 
@@ -165,6 +169,8 @@ export const ShopPage: React.FC = () => {
         // My Store fields
         intent: response.intent,
         recommendations: response.recommendations,
+        recommendedProduct: response.recommendedProduct,
+        recommendedExplanation: response.recommendedExplanation,
         upsellSuggestion: response.upsellSuggestion,
         incentive: response.incentive,
         decision: response.decision,
@@ -235,6 +241,11 @@ export const ShopPage: React.FC = () => {
     setCart(null);
 
     const receiptData = { orderId, paymentId, amount: receiptAmount, items: receiptItems };
+    const existingCartIds = JSON.parse(localStorage.getItem('razorflow_cart_ids') || '[]');
+    if (cart?.id && !existingCartIds.includes(cart.id)) {
+      existingCartIds.push(cart.id);
+      localStorage.setItem('razorflow_cart_ids', JSON.stringify(existingCartIds));
+    }
 
     setMessages((prev) => [
       ...prev,
@@ -462,11 +473,28 @@ export const ShopPage: React.FC = () => {
 
                   {/* My Store Product Recommendations */}
                   {msg.recommendations && msg.recommendations.length > 0 && (
-                    <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {msg.recommendations.map((prod) => (
-                        <ProductCard key={prod.id} product={prod} onAddToCart={(pid) => handleAddToCart(pid)} />
-                      ))}
-                    </div>
+                    <>
+                      {msg.recommendedExplanation && (
+                        <div className="mt-3 p-3 rounded-md border" style={{ backgroundColor: '#FAF5F6', borderColor: 'var(--color-mauve)' }}>
+                          <div className="font-bold text-sm" style={{ color: 'var(--color-mauve)' }}>Recommended for you</div>
+                          <p className="m-0 mt-1 text-sm">{msg.recommendedExplanation}</p>
+                        </div>
+                      )}
+                      <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {msg.recommendations.map((prod) => (
+                          <ProductCard key={prod.id} product={prod} onAddToCart={(pid) => handleAddToCart(pid)} />
+                        ))}
+                      </div>
+                      {msg.recommendations.some((prod) => prod.whyNotBest) && (
+                        <div className="mt-3" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          {msg.recommendations.filter((prod) => prod.whyNotBest).map((prod) => (
+                            <p key={prod.id} className="m-0 text-xs text-muted">
+                              <strong>{prod.name}:</strong> {prod.whyNotBest}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </>
                   )}
 
                   {/* Upsell */}
@@ -722,6 +750,7 @@ export const ShopPage: React.FC = () => {
       />
       <CheckoutModal
         cart={cart}
+        userId={userId}
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
         onPaymentSuccess={handlePaymentSuccess}

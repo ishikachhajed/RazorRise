@@ -10,6 +10,7 @@ declare global {
 
 interface CheckoutModalProps {
   cart: Cart | null;
+  userId?: string;
   isOpen: boolean;
   onClose: () => void;
   onPaymentSuccess: (orderId: string, paymentId: string) => void;
@@ -17,7 +18,7 @@ interface CheckoutModalProps {
 }
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
-  cart, isOpen, onClose, onPaymentSuccess, onPaymentFailed
+  cart, userId, isOpen, onClose, onPaymentSuccess, onPaymentFailed
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +37,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     setError(null);
 
     try {
-      const rzpOrder = await ApiService.createRazorpayOrder(cart.id, true);
+      const rzpOrder = await ApiService.createRazorpayOrder(cart.id, true, userId);
 
       // We strictly use the authentic Razorpay Test Widget.
       if (window.Razorpay && rzpOrder.keyId) {

@@ -13,6 +13,7 @@ export interface ExtractedIntent {
   hasCrossSold?: boolean;
   shownProductIds?: string[];
   rawQuery: string;
+  pendingLaptopState?: 'awaiting_use_case' | 'awaiting_budget' | 'completed';
 }
 
 export type AdaptiveDecision = 
@@ -29,6 +30,8 @@ export interface AgentChatResponse {
   message: string;
   intent?: ExtractedIntent;
   recommendations: any[];
+  recommendedProduct?: any;
+  recommendedExplanation?: string;
   decision?: AdaptiveDecision;
   decisionReason?: string;
   upsellSuggestion?: any;

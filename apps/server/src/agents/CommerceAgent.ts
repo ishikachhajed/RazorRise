@@ -1,5 +1,5 @@
 import { ProviderFactory } from '../providers/ProviderFactory.js';
-import { ExtractedIntent } from '../providers/AIProvider.js';
+import { AdaptiveDecision, ExtractedIntent } from '../providers/AIProvider.js';
 import { ToolRegistry } from '../tools/index.js';
 import { AuditService } from '../services/AuditService.js';
 import { CartService } from '../services/CartService.js';
@@ -103,6 +103,80 @@ function isOffTopic(message: string, accumulatedIntent?: ExtractedIntent): boole
   return !SHOPPING_SIGNALS.some(signal => lower.includes(signal));
 }
 
+type LaptopCandidate = {
+  name: string;
+  price: number;
+  matchScore?: number;
+  specifications?: Record<string, string>;
+  features?: string[];
+  whyNotBest?: string;
+  [key: string]: any;
+};
+
+function getLaptopSpec(candidate: LaptopCandidate, key: string): string | undefined {
+  const directValue = candidate.specifications?.[key];
+  if (directValue) return directValue;
+
+  const feature = (candidate.features || []).find((item) => {
+    const lowerItem = item.toLowerCase();
+    if (key === 'ram') return lowerItem.includes('ram');
+    if (key === 'storage') return lowerItem.includes('ssd') || lowerItem.includes('storage');
+    if (key === 'processor') return lowerItem.includes('intel') || lowerItem.includes('amd') || lowerItem.includes('apple') || lowerItem.includes('snapdragon');
+    if (key === 'camera') return lowerItem.includes('camera') || lowerItem.includes('mp');
+    return false;
+  });
+
+  return feature;
+}
+
+function buildLaptopRecommendationExplanation(candidate: LaptopCandidate, useCase: string): string {
+  const normalizedUseCase = useCase.toLowerCase();
+  const specs = [
+    ['RAM', getLaptopSpec(candidate, 'ram')],
+    ['storage', getLaptopSpec(candidate, 'storage')],
+    ['processor', getLaptopSpec(candidate, 'processor')],
+    ['camera', getLaptopSpec(candidate, 'camera')]
+  ].filter((entry): entry is [string, string] => Boolean(entry[1]));
+
+  const specSummary = specs.map(([label, value]) => `${label}: ${value}`).join(', ');
+  let fitReason = `a ${normalizedUseCase || 'general'} workload`;
+  if (normalizedUseCase.includes('coding') || normalizedUseCase.includes('program')) {
+    fitReason = 'coding and programming';
+  } else if (normalizedUseCase.includes('gaming') || normalizedUseCase.includes('game')) {
+    fitReason = 'gaming performance';
+  } else if (normalizedUseCase.includes('trad')) {
+    fitReason = 'trading and multitasking';
+  } else if (normalizedUseCase.includes('general') || normalizedUseCase.includes('office')) {
+    fitReason = 'general and office use';
+  }
+
+  const scoreText = typeof candidate.matchScore === 'number'
+    ? ` It has a match score of ${candidate.matchScore}/100.`
+    : '';
+  const specText = specSummary ? ` Key details: ${specSummary}.` : '';
+  return `Recommended for you: ${candidate.name} at ₹${candidate.price.toLocaleString('en-IN')} is the strongest match for ${fitReason}.${specText}${scoreText}`;
+}
+
+function buildLaptopWhyNotBest(candidate: LaptopCandidate, recommended: LaptopCandidate): string {
+  const scoreDifference = typeof recommended.matchScore === 'number' && typeof candidate.matchScore === 'number'
+    ? recommended.matchScore - candidate.matchScore
+    : undefined;
+  const priceDifference = recommended.price - candidate.price;
+  const candidateProcessor = getLaptopSpec(candidate, 'processor');
+  const recommendedProcessor = getLaptopSpec(recommended, 'processor');
+
+  if (scoreDifference && scoreDifference > 0 && candidateProcessor && recommendedProcessor && candidateProcessor !== recommendedProcessor) {
+    return `${candidate.name} is a weaker match by ${scoreDifference} points; its ${candidateProcessor} is a less suitable fit than the recommended ${recommendedProcessor} for this request.`;
+  }
+  if (scoreDifference && scoreDifference > 0) {
+    return `${candidate.name} scored ${scoreDifference} points lower than the recommended option${priceDifference > 0 ? ` and costs ₹${priceDifference.toLocaleString('en-IN')} less` : ''}.`;
+  }
+  if (priceDifference < 0) {
+    return `${candidate.name} costs ₹${Math.abs(priceDifference).toLocaleString('en-IN')} more than the recommended option without a higher match score.`;
+  }
+  return `${candidate.name} is a less balanced fit than the recommended option for this use case.`;
+}
+
 export class CommerceAgent {
   static async handleChat({ message, cartId, userId, conversationHistory, accumulatedIntent }: ChatMessageInput) {
     const aiProvider = ProviderFactory.getProvider();
@@ -162,6 +236,94 @@ export class CommerceAgent {
         recommendations: [],
         gatedOrderData: { subtotal: cart.subtotal, itemCount: cart.itemCount, currency: 'INR' }
       };
+    }
+
+    // ── DETERMINISTIC LAPTOP FLOW ──
+    const isLaptopKeyword = /\b(laptop|laptops|notebook)\b/i.test(cleanMessage);
+    const hasLaptopState = accumulatedIntent && (accumulatedIntent as any).pendingLaptopState;
+
+    if (isLaptopKeyword || hasLaptopState) {
+      const laptopIntent: ExtractedIntent = accumulatedIntent || {
+        category: 'laptop',
+        useCases: [],
+        features: [],
+        rawQuery: cleanMessage,
+        basketScope: 'unknown'
+      };
+      laptopIntent.category = 'laptop';
+
+      if (!laptopIntent.pendingLaptopState || laptopIntent.pendingLaptopState === 'awaiting_use_case') {
+        if (!laptopIntent.pendingLaptopState) {
+          laptopIntent.pendingLaptopState = 'awaiting_use_case';
+          return {
+            message: "What will you mainly use the laptop for — gaming, coding/programming, trading/finance, or general/office use?",
+            actionRequired: 'none',
+            intent: laptopIntent,
+            recommendations: []
+          };
+        } else {
+          // Awaiting use case, extract from current message
+          laptopIntent.useCases.push(cleanMessage);
+          laptopIntent.pendingLaptopState = 'awaiting_budget';
+          return {
+            message: "Got it. What's your budget for the laptop?",
+            actionRequired: 'none',
+            intent: laptopIntent,
+            recommendations: []
+          };
+        }
+      } else if (laptopIntent.pendingLaptopState === 'awaiting_budget') {
+        // Awaiting budget, extract from current message
+        const numMatch = cleanMessage.replace(/[₹,\s]/g, '').match(/(\d+)k?/i);
+        if (numMatch) {
+          let val = parseInt(numMatch[1], 10);
+          if (cleanMessage.toLowerCase().includes('k')) val *= 1000;
+          laptopIntent.budgetMax = val;
+          laptopIntent.budgetType = 'hard';
+        }
+        laptopIntent.pendingLaptopState = 'completed';
+        
+        // Directly process core commerce logic for laptops
+        const coreResult = await CommerceAgent.processCoreCommerceLogic(laptopIntent, cartId, userId);
+        const laptopCandidates = (coreResult.candidates || []) as LaptopCandidate[];
+        const recommendedProduct = laptopCandidates.reduce<LaptopCandidate | undefined>((best, candidate) => {
+          if (!best || (candidate.matchScore || 0) > (best.matchScore || 0)) return candidate;
+          return best;
+        }, undefined);
+        const candidatesWithWhyNotBest = recommendedProduct
+          ? laptopCandidates.map((candidate) => candidate === recommendedProduct
+            ? candidate
+            : { ...candidate, whyNotBest: buildLaptopWhyNotBest(candidate, recommendedProduct) })
+          : laptopCandidates;
+
+        if (candidatesWithWhyNotBest.length > 0) {
+          laptopIntent.shownProductIds = candidatesWithWhyNotBest.map((c: any) => c.id);
+        }
+        
+        // We do not want the LLM to generate the message here since we have a deterministic flow
+        // The laptop results will be shown natively in the UI, and the appended cross sell will be handled.
+        // Let's generate a simple confirmation message.
+        const recommendedExplanation = recommendedProduct
+          ? buildLaptopRecommendationExplanation(recommendedProduct, laptopIntent.useCases.join(', '))
+          : undefined;
+        const aiMessage = `Here are the best laptops matching your budget of ₹${laptopIntent.budgetMax?.toLocaleString('en-IN') || 'any'} for ${laptopIntent.useCases.join(', ')}.`;
+        
+        return {
+          message: aiMessage,
+          intent: laptopIntent,
+          decision: coreResult.decision,
+          decisionReason: coreResult.decisionReason,
+          recommendations: candidatesWithWhyNotBest,
+          recommendedProduct,
+          recommendedExplanation,
+          upsellSuggestion: coreResult.upsellSuggestion,
+          incentive: coreResult.incentive,
+          actionRequired: 'none'
+        };
+      } else if (laptopIntent.pendingLaptopState === 'completed') {
+        // If completed, allow it to fall through to the normal AI flow so user can say "show me more"
+        accumulatedIntent = laptopIntent;
+      }
     }
 
     // Check for direct Add to Cart Intent
@@ -280,16 +442,27 @@ export class CommerceAgent {
   static async processCoreCommerceLogic(intent: ExtractedIntent, cartId?: string, userId?: string) {
     const aiProvider = ProviderFactory.getProvider();
 
+    const isLaptopFlow = intent.category === 'laptop' && intent.pendingLaptopState === 'completed';
+
     // Step 3: Adaptive Selling Decision
-    const decisionData = await aiProvider.makeAdaptiveDecision(intent, null);
-    let decision = decisionData.decision;
+    let decision: AdaptiveDecision;
+    let decisionReason: string;
+
+    if (isLaptopFlow) {
+      decision = 'RECOMMEND';
+      decisionReason = 'Hardcoded laptop flow completion';
+    } else {
+      const decisionData = await aiProvider.makeAdaptiveDecision(intent, null);
+      decision = decisionData.decision;
+      decisionReason = decisionData.reason;
+    }
 
     await AuditService.logEvent({
       userId,
       eventType: 'AI_DECISION',
       actor: 'ai',
       action: decision,
-      reason: decisionData.reason,
+      reason: decisionReason,
       input: JSON.stringify(intent),
       status: 'success'
     });
@@ -350,7 +523,41 @@ export class CommerceAgent {
     if (candidates.length > 0) {
       const topProduct = candidates[0];
 
-      if (decision === 'EXPAND_BASKET') {
+      if (isLaptopFlow) {
+        // Deterministic cross-sell for laptops
+        const accessoryRes: any = await ToolRegistry.executeTool({
+          toolName: 'recommend_products',
+          arguments: { category: 'accessories', limit: 5 },
+          cartId, userId
+        });
+        
+        const relevantProducts = [];
+        if (accessoryRes.candidates) {
+          for (const acc of accessoryRes.candidates) {
+            const nameLower = acc.name.toLowerCase();
+            if (nameLower.includes('mouse') || nameLower.includes('keyboard') || nameLower.includes('sleeve') || nameLower.includes('cover')) {
+              relevantProducts.push(acc);
+            }
+          }
+        }
+
+        upsellSuggestion = {
+          reason: "💡 Want to complete your setup? A laptop sleeve/cover, a wireless mouse, or a compact keyboard pair well with this.",
+          product: relevantProducts.length > 0 ? relevantProducts[0] : undefined
+        };
+        intent.hasCrossSold = true;
+        
+        await AuditService.logEvent({
+          userId,
+          eventType: 'UPSELL_SUGGESTION',
+          actor: 'system',
+          action: 'Deterministic Laptop Cross-Sell',
+          reason: upsellSuggestion.reason,
+          input: topProduct.id,
+          output: upsellSuggestion.product?.id || 'none',
+          status: 'success'
+        });
+      } else if (decision === 'EXPAND_BASKET') {
         // Enforce max 1 cross-sell per session (cap)
         if (intent.hasCrossSold) {
           decision = 'RECOMMEND'; // Downgrade gracefully
@@ -403,7 +610,7 @@ export class CommerceAgent {
           eventType: 'NO_UPSELL_DECISION',
           actor: 'ai',
           action: 'Refrained from Upsell',
-          reason: decisionData.reason,
+          reason: decisionReason,
           status: 'success'
         });
       } else if (decision === 'OFFER_INCENTIVE') {
@@ -430,7 +637,7 @@ export class CommerceAgent {
             eventType: 'INCENTIVE_PROPOSED',
             actor: 'ai',
             action: `Offered ${configResult.maxDiscountPercent}% discount`,
-            reason: decisionData.reason,
+            reason: decisionReason,
             status: 'success'
           });
         } else {
@@ -449,7 +656,7 @@ export class CommerceAgent {
 
     return {
       decision,
-      decisionReason: decisionData.reason,
+      decisionReason,
       candidates,
       upsellSuggestion,
       incentive

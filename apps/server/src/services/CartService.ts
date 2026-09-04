@@ -37,6 +37,19 @@ export class CartService {
     }
 
     if (!cart) {
+      if (userId) {
+        await prisma.user.upsert({
+          where: { id: userId },
+          update: {},
+          create: {
+            id: userId,
+            name: 'Guest',
+            email: `${userId}@guest.local`,
+            role: 'customer'
+          }
+        });
+      }
+
       cart = await prisma.cart.create({
         data: {
           userId,

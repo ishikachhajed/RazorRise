@@ -1,3 +1,5 @@
+import { getPersistentUserId } from '../utils/session';
+
 const API_BASE = '/api';
 
 export interface Product {
@@ -24,6 +26,7 @@ export interface Product {
     valueForMoney: number;
   };
   whyThis?: string[];
+  whyNotBest?: string;
 }
 
 export interface CartItem {
@@ -139,8 +142,11 @@ export class ApiService {
     return res.json();
   }
 
-  static async getCart(cartId?: string) {
-    const url = cartId ? `${API_BASE}/cart?cartId=${cartId}` : `${API_BASE}/cart`;
+  static async getCart(cartId?: string, userId?: string) {
+    const params = new URLSearchParams();
+    if (cartId) params.append('cartId', cartId);
+    if (userId) params.append('userId', userId);
+    const url = `${API_BASE}/cart?${params.toString()}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('Failed to fetch cart');
     const data = await res.json();
@@ -193,11 +199,11 @@ export class ApiService {
     return res.json();
   }
 
-  static async createRazorpayOrder(cartId: string, userConfirmed: boolean = true) {
+  static async createRazorpayOrder(cartId: string, userConfirmed: boolean = true, userId?: string) {
     const res = await fetch(`${API_BASE}/razorpay/order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cartId, userConfirmed })
+      body: JSON.stringify({ cartId, userConfirmed, userId })
     });
     if (!res.ok) {
       const err = await res.json();
@@ -243,22 +249,7 @@ export class ApiService {
 
   static async getOrders(userId?: string) {
     const params = new URLSearchParams();
-    if (userId) params.append('userId', userId);
-    
-    // Add cartIds from localStorage to identify guest user's orders
-    if (typeof window !== 'undefined') {
-      const cartIds = localStorage.getItem('razorflow_cart_ids');
-      if (cartIds) {
-        try {
-          const parsedIds = JSON.parse(cartIds);
-          if (Array.isArray(parsedIds) && parsedIds.length > 0) {
-            params.append('cartIds', parsedIds.join(','));
-          }
-        } catch (e) {
-          // ignore parsing error
-        }
-      }
-    }
+    params.append('userId', userId || getPersistentUserId());
     
     params.append('_', Date.now().toString());
     const res = await fetch(`${API_BASE}/orders?${params.toString()}`, {

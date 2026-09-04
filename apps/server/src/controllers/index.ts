@@ -269,7 +269,8 @@ export class CommerceController {
   static async getCart(req: Request, res: Response) {
     try {
       const cartId = req.query.cartId as string;
-      const cart = await CartService.getOrCreateCart(cartId);
+      const userId = req.query.userId as string;
+      const cart = await CartService.getOrCreateCart(cartId, userId);
       return res.json({ cart });
     } catch (err: any) {
       return res.status(500).json({ error: err.message });
