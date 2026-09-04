@@ -6,6 +6,7 @@ node_modules/
 dist/
 build/
 .vite/
+apps/server/src/generated/
 
 # Environment files
 .env
