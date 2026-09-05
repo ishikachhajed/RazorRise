@@ -29,6 +29,7 @@ router.post('/cart/recover', CommerceController.recoverAbandonedCart);
 // Razorpay Payments
 router.post('/razorpay/order', CommerceController.createRazorpayOrder);
 router.post('/razorpay/verify', CommerceController.verifyRazorpayPayment);
+router.post('/razorpay/fail', CommerceController.logRazorpayFailure);
 router.post('/webhooks/razorpay', CommerceController.handleRazorpayWebhook);
 
 // User Orders

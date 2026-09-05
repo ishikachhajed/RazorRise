@@ -69,6 +69,14 @@ export class PaymentService {
     // ──────────────────────────────────────────────────────────────────────
     const agentConfig = await prisma.agentConfig.findUnique({ where: { id: 'default' } });
     if (agentConfig && agentConfig.isActive) {
+      const metadata = {
+        amount: finalAmount,
+        currentSpend: agentConfig.currentMonthlySpend,
+        spendingLimit: agentConfig.monthlySpendingLimit,
+        autoApproveThreshold: agentConfig.autoApproveThreshold,
+        requireApprovalMax: agentConfig.requireApprovalMax
+      };
+
       if (finalAmount > agentConfig.requireApprovalMax) {
         await AuditService.logEvent({
           userId,
@@ -76,7 +84,8 @@ export class PaymentService {
           actor: 'system',
           action: 'Blocked order creation',
           reason: `Amount ₹${finalAmount} exceeds maximum transaction limit of ₹${agentConfig.requireApprovalMax}`,
-          status: 'blocked'
+          status: 'blocked',
+          metadata
         });
         throw new Error(`Transaction Blocked: Amount ₹${finalAmount} exceeds your maximum transaction limit.`);
       }
@@ -88,7 +97,8 @@ export class PaymentService {
           actor: 'system',
           action: 'Blocked order creation',
           reason: `Amount ₹${finalAmount} exceeds remaining monthly limit`,
-          status: 'blocked'
+          status: 'blocked',
+          metadata
         });
         throw new Error(`Transaction Blocked: Amount ₹${finalAmount} exceeds your remaining monthly spending limit.`);
       }
@@ -100,7 +110,8 @@ export class PaymentService {
           actor: 'system',
           action: 'Requested explicit user approval',
           reason: `Amount ₹${finalAmount} exceeds auto-approve threshold of ₹${agentConfig.autoApproveThreshold}`,
-          status: 'success'
+          status: 'success',
+          metadata
         });
         throw new Error(`APPROVAL_REQUIRED:${finalAmount}`);
       }

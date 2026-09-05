@@ -228,6 +228,18 @@ export class ApiService {
     return res.json();
   }
 
+  static async logRazorpayFailure(cartId: string, reason: string) {
+    const res = await fetch(`${API_BASE}/razorpay/fail`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cartId, reason })
+    });
+    if (!res.ok) {
+      console.error('Failed to log Razorpay failure');
+    }
+    return res.json().catch(() => ({}));
+  }
+
   static async getMerchantDashboard() {
     const res = await fetch(`${API_BASE}/merchant/dashboard`);
     if (!res.ok) throw new Error('Failed to load merchant dashboard');

@@ -425,6 +425,31 @@ export class CommerceController {
     }
   }
 
+  static async logRazorpayFailure(req: Request, res: Response) {
+    try {
+      const { cartId, reason, userId } = req.body;
+      if (!cartId) return res.status(400).json({ error: 'cartId is required' });
+      
+      const cart = await CartService.getOrCreateCart(cartId, userId);
+      
+      await AuditService.logEvent({
+        userId,
+        eventType: 'PAYMENT_FAILED',
+        actor: 'user',
+        action: 'Payment Attempt Failed or Cancelled',
+        reason: reason || 'User cancelled payment or payment declined',
+        input: JSON.stringify({ cartId, amount: cart.subtotal }),
+        output: 'Cart preserved, order not created',
+        status: 'failed',
+        metadata: { cartId, amount: cart.subtotal, itemCount: cart.itemCount }
+      });
+      
+      return res.json({ success: true });
+    } catch (err: any) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
   static async handleRazorpayWebhook(req: Request, res: Response) {
     try {
       // Use raw body string for HMAC validation (express.json() has already parsed it)

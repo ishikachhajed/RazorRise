@@ -28,7 +28,7 @@ export const AuditTrailPage: React.FC = () => {
   const totalEvents = events.length;
   const aiEvents = events.filter((e) => e.actor === 'ai').length;
   const gatedConfirmations = events.filter((e) => e.eventType === 'CHECKOUT_CONFIRMATION' || e.eventType === 'RAZORPAY_ORDER_CREATED').length;
-  const paymentCaptured = events.filter((e) => e.eventType === 'PAYMENT_CAPTURED').length;
+  const paymentCaptured = events.filter((e) => e.eventType === 'PAYMENT_SUCCESS').length;
 
   const getActorBadge = (actor: string) => {
     switch (actor.toLowerCase()) {
@@ -167,27 +167,158 @@ export const AuditTrailPage: React.FC = () => {
                   {isExpanded && (
                     <div className="mt-3 p-4 rounded-md border flex flex-col gap-3" style={{ backgroundColor: '#FDFBFB' }}>
                       <div className="flex justify-between items-center border-b pb-2">
-                        <span className="font-bold text-xs uppercase tracking-wider flex items-center gap-1"><Code size={14} /> Technical Payload</span>
+                        <span className="font-bold text-xs uppercase tracking-wider flex items-center gap-1"><FileText size={14} /> Transaction Context & Payload</span>
                         <span className="text-xs text-muted font-mono">Event ID: {evt.id}</span>
                       </div>
-                      {evt.input && (
-                        <div>
-                          <span className="text-xs font-bold text-muted block mb-1">Input Parameters:</span>
-                          <pre className="bg-card border rounded-md p-3 text-xs m-0 overflow-auto max-h-40 whitespace-pre-wrap">{sanitizeText(evt.input)}</pre>
+                      
+                      {/* Rich Context Section for AI Actions */}
+                      {evt.actor === 'ai' && (
+                        <div className="bg-white p-3 rounded border mb-2">
+                           <h4 className="m-0 text-sm font-bold mb-3 flex items-center gap-2">
+                             <Bot size={14} className="text-purple-600" /> AI AGENT DECISION
+                           </h4>
+                           <div className="grid grid-cols-2 gap-4 text-sm">
+                             <div>
+                               <span className="text-xs text-muted block mb-1">Trigger / Reason</span>
+                               <span className="font-medium text-gray-800">{sanitizeText(evt.reason) || 'Analyzed user intent'}</span>
+                             </div>
+                             <div>
+                               <span className="text-xs text-muted block mb-1">Result / Status</span>
+                               <span className="font-bold text-gray-800">{evt.status.toUpperCase()}</span>
+                             </div>
+                           </div>
+                           <div className="mt-3 p-2 bg-purple-50 rounded border border-purple-100 text-xs">
+                             <span className="font-bold text-purple-700">Chronological Flow:</span> User request → Intent extracted → AI executed {evt.action} → Context updated.
+                           </div>
                         </div>
                       )}
-                      {evt.output && (
-                        <div>
-                          <span className="text-xs font-bold text-muted block mb-1">Output Response:</span>
-                          <pre className="bg-card border rounded-md p-3 text-xs m-0 overflow-auto max-h-48 whitespace-pre-wrap" style={{ color: 'var(--color-mauve)' }}>{sanitizeText(evt.output)}</pre>
+
+                      {/* Rich Context Section for Financial Events */}
+                      {evt.metadata && evt.metadata.amount !== undefined && (
+                        <div className="bg-white p-3 rounded border mb-2">
+                           <h4 className="m-0 text-sm font-bold mb-3 flex items-center gap-2">
+                             {evt.eventType === 'MONEY_ACTION_BLOCKED' && <span className="text-red-500"><AlertTriangle size={14} /> BLOCKED</span>}
+                             {evt.eventType === 'GATED_CONFIRMATION_REQUIRED' && <span className="text-orange-500"><AlertTriangle size={14} /> APPROVAL REQUIRED</span>}
+                             {evt.eventType === 'RAZORPAY_ORDER_CREATED' && <span className="text-blue-500"><CheckCircle2 size={14} /> AUTO-APPROVED / INITIATED</span>}
+                             {evt.eventType === 'PAYMENT_SUCCESS' && <span className="text-green-500"><CheckCircle2 size={14} /> PAYMENT SUCCESS</span>}
+                             {evt.eventType === 'PAYMENT_FAILED' && <span className="text-red-500"><XCircle size={14} /> PAYMENT FAILED</span>}
+                           </h4>
+                           
+                           <div className="grid grid-cols-2 gap-4 text-sm">
+                             <div>
+                               <span className="text-xs text-muted block mb-1">Transaction Amount</span>
+                               <span className="font-bold">₹{evt.metadata.amount?.toLocaleString('en-IN') || 0}</span>
+                             </div>
+                             
+                             {evt.metadata.currentSpend !== undefined && (
+                               <div>
+                                 <span className="text-xs text-muted block mb-1">Current Spending</span>
+                                 <span className="font-medium">₹{evt.metadata.currentSpend?.toLocaleString('en-IN')} / ₹{evt.metadata.spendingLimit?.toLocaleString('en-IN')}</span>
+                               </div>
+                             )}
+
+                             {evt.eventType === 'GATED_CONFIRMATION_REQUIRED' && (
+                               <>
+                                 <div>
+                                   <span className="text-xs text-muted block mb-1">Policy Decision</span>
+                                   <span className="font-bold text-orange-600">APPROVAL REQUIRED</span>
+                                 </div>
+                                 <div>
+                                   <span className="text-xs text-muted block mb-1">Applicable Threshold</span>
+                                   <span className="font-medium text-gray-700">₹{evt.metadata.autoApproveThreshold?.toLocaleString('en-IN')} (Auto-Approve)</span>
+                                 </div>
+                               </>
+                             )}
+
+                             {evt.eventType === 'MONEY_ACTION_BLOCKED' && (
+                               <>
+                                 <div>
+                                   <span className="text-xs text-muted block mb-1">Policy Decision</span>
+                                   <span className="font-bold text-red-600">BLOCKED</span>
+                                 </div>
+                                 <div>
+                                   <span className="text-xs text-muted block mb-1">Applicable Limit</span>
+                                   <span className="font-medium text-gray-700">₹{evt.metadata.requireApprovalMax?.toLocaleString('en-IN')} (Max Txn Limit)</span>
+                                 </div>
+                               </>
+                             )}
+
+                             {(evt.eventType === 'PAYMENT_FAILED' || evt.eventType === 'PAYMENT_SUCCESS') && (
+                               <div>
+                                 <span className="text-xs text-muted block mb-1">Final Outcome</span>
+                                 {evt.eventType === 'PAYMENT_FAILED' ? (
+                                   <span className="text-red-600 font-bold">Failed. Cart Preserved.</span>
+                                 ) : (
+                                   <span className="text-green-600 font-bold">Success. Order Created.</span>
+                                 )}
+                               </div>
+                             )}
+
+                             {evt.metadata.razorpayOrderId && (
+                               <div>
+                                 <span className="text-xs text-muted block mb-1">Razorpay Order ID</span>
+                                 <span className="font-mono text-xs">{evt.metadata.razorpayOrderId}</span>
+                               </div>
+                             )}
+
+                             {evt.metadata.razorpayPaymentId && (
+                               <div>
+                                 <span className="text-xs text-muted block mb-1">Razorpay Payment ID</span>
+                                 <span className="font-mono text-xs">{evt.metadata.razorpayPaymentId}</span>
+                               </div>
+                             )}
+                           </div>
+                           
+                           {evt.eventType === 'MONEY_ACTION_BLOCKED' && (
+                             <div className="mt-3 p-2 bg-red-50 rounded border border-red-100 text-xs">
+                               <span className="font-bold text-red-700">Chronological Flow:</span> Policy checked → Transaction blocked → No Razorpay payment initiated.
+                             </div>
+                           )}
+                           
+                           {evt.eventType === 'GATED_CONFIRMATION_REQUIRED' && (
+                             <div className="mt-3 p-2 bg-orange-50 rounded border border-orange-100 text-xs">
+                               <span className="font-bold text-orange-700">Chronological Flow:</span> Policy checked → Approval requested → User pending → Payment on hold.
+                             </div>
+                           )}
+                           
+                           {evt.eventType === 'PAYMENT_FAILED' && (
+                             <div className="mt-3 p-2 bg-red-50 rounded border border-red-100 text-xs">
+                               <span className="font-bold text-red-700">Chronological Flow:</span> Razorpay order created → Payment attempted → Payment failed → Retry available.
+                             </div>
+                           )}
+
+                           {evt.eventType === 'PAYMENT_SUCCESS' && (
+                             <div className="mt-3 p-2 bg-green-50 rounded border border-green-100 text-xs">
+                               <span className="font-bold text-green-700">Chronological Flow:</span> Payment attempted → Payment success → Order created.
+                             </div>
+                           )}
                         </div>
                       )}
-                      {evt.metadata && Object.keys(evt.metadata).length > 0 && (
-                        <div>
-                          <span className="text-xs font-bold text-muted block mb-1">Metadata JSON:</span>
-                          <pre className="bg-card border rounded-md p-3 text-xs m-0 overflow-auto max-h-48">{JSON.stringify(evt.metadata, null, 2)}</pre>
+
+                      {/* Technical Payload Details */}
+                      <details>
+                        <summary className="text-xs font-bold text-muted cursor-pointer hover:text-black">View Raw Technical Payload</summary>
+                        <div className="mt-2 space-y-3">
+                          {evt.input && (
+                            <div>
+                              <span className="text-xs font-bold text-muted block mb-1">Input / Trigger:</span>
+                              <pre className="bg-card border rounded-md p-3 text-xs m-0 overflow-auto max-h-40 whitespace-pre-wrap">{sanitizeText(evt.input)}</pre>
+                            </div>
+                          )}
+                          {evt.output && (
+                            <div>
+                              <span className="text-xs font-bold text-muted block mb-1">Result / Output:</span>
+                              <pre className="bg-card border rounded-md p-3 text-xs m-0 overflow-auto max-h-48 whitespace-pre-wrap" style={{ color: 'var(--color-mauve)' }}>{sanitizeText(evt.output)}</pre>
+                            </div>
+                          )}
+                          {evt.metadata && Object.keys(evt.metadata).length > 0 && (
+                            <div>
+                              <span className="text-xs font-bold text-muted block mb-1">JSON Context:</span>
+                              <pre className="bg-card border rounded-md p-3 text-xs m-0 overflow-auto max-h-48">{JSON.stringify(evt.metadata, null, 2)}</pre>
+                            </div>
+                          )}
                         </div>
-                      )}
+                      </details>
                     </div>
                   )}
                 </div>

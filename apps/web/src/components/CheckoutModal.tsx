@@ -75,13 +75,17 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           modal: { ondismiss: () => {
             setLoading(false);
             // Explicitly handle failure if user closes the modal without paying
-            onPaymentFailed('Payment cancelled by user. Cart preserved.');
+            const reason = 'Payment cancelled by user. Cart preserved.';
+            ApiService.logRazorpayFailure(cart.id, reason).catch(() => {});
+            onPaymentFailed(reason);
           } }
         };
 
         const rzp = new window.Razorpay(options);
         rzp.on('payment.failed', function (response: any) {
-          onPaymentFailed(response.error?.description || 'Test payment declined');
+          const reason = response.error?.description || 'Test payment declined';
+          ApiService.logRazorpayFailure(cart.id, reason).catch(() => {});
+          onPaymentFailed(reason);
         });
         rzp.open();
       } else {

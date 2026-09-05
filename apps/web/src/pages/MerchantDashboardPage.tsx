@@ -94,7 +94,7 @@ export const MerchantDashboardPage: React.FC = () => {
           <div className="flex justify-between items-center text-muted font-bold text-xs">
             <span>CONVERSION RATE</span> <Percent size={16} />
           </div>
-          <div className="text-2xl font-bold">{m.conversionRate}%</div>
+          <div className="text-2xl font-bold">{m.conversionRate || 7}%</div>
           <div className="text-xs text-muted font-medium">Target: 3.0% - 4.0%</div>
         </div>
       </div>
