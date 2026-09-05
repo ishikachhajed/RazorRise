@@ -20,6 +20,16 @@ model MerchantConfig {
   updatedAt             DateTime @updatedAt
 }
 
+model AgentConfig {
+  id                    String   @id @default("default")
+  isActive              Boolean  @default(true)
+  monthlySpendingLimit  Float    @default(500000)
+  currentMonthlySpend   Float    @default(0)
+  autoApproveThreshold  Float    @default(50000)
+  requireApprovalMax    Float    @default(150000)
+  updatedAt             DateTime @updatedAt
+}
+
 model User {
   id        String   @id @default(uuid())
   name      String

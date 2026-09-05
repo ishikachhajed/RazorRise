@@ -23,21 +23,24 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [requiresApproval, setRequiresApproval] = useState(false);
+
   useEffect(() => {
     if (isOpen) {
       setLoading(false);
       setError(null);
+      setRequiresApproval(false);
     }
   }, [isOpen]);
 
   if (!isOpen || !cart) return null;
 
-  const handleConfirmAndPay = async () => {
+  const handleConfirmAndPay = async (isApproved = false) => {
     setLoading(true);
     setError(null);
 
     try {
-      const rzpOrder = await ApiService.createRazorpayOrder(cart.id, true, userId);
+      const rzpOrder = await ApiService.createRazorpayOrder(cart.id, isApproved, userId);
 
       // We strictly use the authentic Razorpay Test Widget.
       if (window.Razorpay && rzpOrder.keyId) {
@@ -85,7 +88,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         throw new Error("Razorpay SDK not loaded or Key ID missing.");
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to initiate order creation');
+      if (err.requireApproval) {
+        setRequiresApproval(true);
+      } else {
+        setError(err.message || 'Failed to initiate order creation');
+      }
       setLoading(false);
     }
   };
@@ -172,15 +179,30 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           "You're in control. The AI cannot authorize or alter this payment."
         </div>
 
-        <div className="flex gap-2">
+        {requiresApproval && (
+          <div className="p-3 text-sm flex-col gap-2 rounded-md" style={{ backgroundColor: '#FFFBEB', color: '#B45309', border: '1px solid #FDE68A', marginTop: '10px' }}>
+            <div className="flex items-center gap-2 font-bold mb-1">
+              <AlertCircle size={16} />
+              <span>Agent Spending Approval Required</span>
+            </div>
+            <p className="m-0 mb-2">This transaction amount exceeds the agent's auto-approve threshold. Explicit approval is required to proceed with this payment.</p>
+          </div>
+        )}
+
+        <div className="flex gap-2" style={{ marginTop: '10px' }}>
           <button onClick={onClose} disabled={loading} className="btn-tertiary" style={{ flex: 1, padding: '12px' }}>
             Cancel
           </button>
-          <button onClick={handleConfirmAndPay} disabled={loading} className="btn-primary flex items-center justify-center gap-2" style={{ flex: 2, padding: '12px', backgroundColor: '#8b5cf6', color: '#ffffff' }}>
+          <button onClick={() => handleConfirmAndPay(requiresApproval)} disabled={loading} className="btn-primary flex items-center justify-center gap-2" style={{ flex: 2, padding: '12px', backgroundColor: requiresApproval ? '#D97706' : '#8b5cf6', color: '#ffffff' }}>
             {loading ? (
               <>
                 <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} />
-                Redirecting...
+                Processing...
+              </>
+            ) : requiresApproval ? (
+              <>
+                <ShieldCheck size={16} />
+                Approve & Pay <ArrowRight size={16} />
               </>
             ) : (
               <>

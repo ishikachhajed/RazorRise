@@ -31,20 +31,30 @@ export class ShoppingService {
       throw new Error('External shopping search is not configured on the server.');
     }
 
-    const { query, maxPrice, minPrice, limit = 6 } = params;
+    const { query, maxPrice, minPrice, limit = 6, category } = params;
+
+    // Combine category with query if present
+    const finalQuery = category && !query.toLowerCase().includes(category.toLowerCase()) 
+      ? `${category} ${query}` 
+      : query;
 
     // Build SerpApi URL — key stays server-side only
     const searchParams = new URLSearchParams({
       engine: 'google_shopping',
-      q: query,
+      q: finalQuery,
       gl: 'in',
       hl: 'en',
       currency: 'INR',
       api_key: config.serpApiKey
     });
 
-    if (maxPrice) searchParams.set('price_max', String(Math.round(maxPrice)));
-    if (minPrice) searchParams.set('price_min', String(Math.round(minPrice)));
+    let tbs = '';
+    if (minPrice || maxPrice) {
+      tbs = 'mr:1,price:1,';
+      if (minPrice) tbs += `ppr_min:${Math.round(minPrice)},`;
+      if (maxPrice) tbs += `ppr_max:${Math.round(maxPrice)},`;
+      searchParams.set('tbs', tbs.slice(0, -1));
+    }
 
     let data: any;
     try {

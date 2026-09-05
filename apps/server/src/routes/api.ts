@@ -39,4 +39,8 @@ router.get('/merchant/dashboard', CommerceController.getMerchantDashboard);
 router.get('/merchant/insights', CommerceController.getMerchantInsights);
 router.get('/merchant/audit', CommerceController.getMerchantAuditTrail);
 
+// Agent Config
+router.get('/agent/config', CommerceController.getAgentConfig);
+router.post('/agent/config', CommerceController.updateAgentConfig);
+
 export default router;

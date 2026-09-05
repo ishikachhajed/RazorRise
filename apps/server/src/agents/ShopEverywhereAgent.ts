@@ -87,7 +87,9 @@ const CLARIFICATION_MAP: Record<string, { category: string; questions: string[] 
   laptop: { category: 'laptop', questions: ['What is your budget?', 'What will you mainly use it for: gaming, work/office, or video editing?'] },
   notebook: { category: 'laptop', questions: ['What is your budget?', 'What will you mainly use it for: gaming, work/office, or video editing?'] },
   shoe: { category: 'shoes', questions: ['What is your budget?', 'What will you use them for: running, casual wear, or formal occasions?'] },
-  shoes: { category: 'shoes', questions: ['What is your budget?', 'What will you use them for: running, casual wear, or formal occasions?'] }
+  shoes: { category: 'shoes', questions: ['What is your budget?', 'What will you use them for: running, casual wear, or formal occasions?'] },
+  watch: { category: 'watch', questions: ['What is your budget?', 'Are you looking for an analog watch or a smartwatch?'] },
+  smartwatch: { category: 'smartwatch', questions: ['What is your budget?', 'Are you looking for fitness tracking features or mainly notifications?'] }
 };
 
 function resolveClarification(query: string): { category: string; questions: string[] } | undefined {

@@ -28,6 +28,7 @@ interface ChatMessage {
   recommendations?: Product[];
   recommendedProduct?: Product;
   recommendedExplanation?: string;
+  purchasePlan?: any;
   upsellSuggestion?: any;
   incentive?: { type: string; percent: number };
   decision?: string;
@@ -173,6 +174,7 @@ export const ShopPage: React.FC = () => {
         recommendedExplanation: response.recommendedExplanation,
         upsellSuggestion: response.upsellSuggestion,
         incentive: response.incentive,
+        purchasePlan: response.purchasePlan,
         decision: response.decision,
         decisionReason: response.decisionReason,
         actionRequired: response.actionRequired,
@@ -201,12 +203,17 @@ export const ShopPage: React.FC = () => {
     }
   };
 
+  const [cartUpsell, setCartUpsell] = useState<any>(null);
+
   // ── Cart handlers (My Store only) ─────────────────────────────────────────
   const handleAddToCart = async (productId: string) => {
     if (!cart) return;
     try {
-      const updatedCart = await ApiService.addToCart(cart.id, productId, 1);
-      setCart(updatedCart);
+      const response = await ApiService.addToCart(cart.id, productId, 1);
+      setCart(response.cart);
+      if (response.upsellSuggestion) {
+        setCartUpsell(response.upsellSuggestion);
+      }
       setIsCartOpen(true);
     } catch (err: any) {
       alert(`Could not add to cart: ${err.message}`);
@@ -468,6 +475,30 @@ export const ShopPage: React.FC = () => {
                   {msg.incentive && (
                     <div className="mt-3 p-3 rounded-md flex items-center gap-2 text-sm font-bold" style={{ backgroundColor: 'var(--color-sage)', border: '1px solid #b5c5bb' }}>
                       🎁 Special offer: <strong>{msg.incentive.percent}% discount</strong> applied to your cart!
+                    </div>
+                  )}
+
+                  {/* Purchase Plan */}
+                  {msg.purchasePlan && (
+                    <div className="mt-4 border rounded-md overflow-hidden bg-white">
+                      <div className="bg-gray-50 border-b px-4 py-2 font-bold text-sm text-gray-700 flex items-center gap-2">
+                        <CheckCircle2 size={16} className="text-green-600" />
+                        AI Purchase Plan
+                      </div>
+                      <div className="p-4 grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="text-xs text-muted font-bold uppercase mb-1">Goal</p>
+                          <p className="m-0 font-medium">{msg.purchasePlan.goal}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted font-bold uppercase mb-1">Budget</p>
+                          <p className="m-0 font-medium">{msg.purchasePlan.budget}</p>
+                        </div>
+                        <div className="col-span-2">
+                          <p className="text-xs text-muted font-bold uppercase mb-1">Requirements</p>
+                          <p className="m-0 font-medium">{(msg.purchasePlan.requirements || []).join(', ') || 'None'}</p>
+                        </div>
+                      </div>
                     </div>
                   )}
 
@@ -747,6 +778,8 @@ export const ShopPage: React.FC = () => {
         onRemoveItem={handleRemoveFromCart}
         onProceedToCheckout={() => setIsCheckoutOpen(true)}
         onClearCart={handleClearCart}
+        upsellSuggestion={cartUpsell}
+        onAddUpsell={(pid) => handleAddToCart(pid)}
       />
       <CheckoutModal
         cart={cart}

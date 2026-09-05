@@ -11,6 +11,7 @@ import { PaymentFailedPage } from './pages/PaymentFailedPage';
 import { MerchantDashboardPage } from './pages/MerchantDashboardPage';
 import { MerchantInsightsPage } from './pages/MerchantInsightsPage';
 import { MerchantCatalogPage } from './pages/MerchantCatalogPage';
+import { AgentControlPage } from './pages/AgentControlPage';
 import { AuditTrailPage } from './pages/AuditTrailPage';
 import { Sidebar } from './components/Sidebar';
 import { ApiService, Cart } from './services/api';
@@ -50,6 +51,7 @@ export function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/shop" element={<ShopPage />} />
+            <Route path="/agent-control" element={<AgentControlPage />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/success" element={<SuccessPage />} />
             <Route path="/payment-failed" element={<PaymentFailedPage />} />

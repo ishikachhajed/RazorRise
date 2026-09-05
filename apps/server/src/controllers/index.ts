@@ -284,7 +284,30 @@ export class CommerceController {
         return res.status(400).json({ error: 'cartId and productId are required' });
       }
       const cart = await CartService.addItem(cartId, productId, quantity || 1);
-      return res.json({ cart });
+      
+      // Auto context-aware upsell generation
+      let upsellSuggestion = null;
+      try {
+        const product = await prisma.product.findUnique({ where: { id: productId } });
+        if (product) {
+          const { ToolRegistry } = await import('../tools/index.js');
+          const res: any = await ToolRegistry.executeTool({
+             toolName: 'recommend_products',
+             arguments: { category: 'accessories', limit: 1 },
+             cartId, userId: cart.userId || undefined
+          });
+          if (res && res.candidates && res.candidates.length > 0) {
+            upsellSuggestion = {
+              product: res.candidates[0],
+              reason: `Customers who bought ${product.name} also bought this.`
+            };
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to generate automatic upsell on cart add', e);
+      }
+
+      return res.json({ cart, upsellSuggestion });
     } catch (err: any) {
       return res.status(400).json({ error: err.message });
     }
@@ -364,28 +387,27 @@ export class CommerceController {
   // ──────────────────────────────────────────────────────────────────────
   static async createRazorpayOrder(req: Request, res: Response) {
     try {
-      const { cartId, userId, userConfirmed } = req.body;
-
-      // Strict Security Gate: Require explicit user confirmation flag
-      if (!userConfirmed) {
-        await AuditService.logEvent({
-          userId,
-          eventType: 'MONEY_ACTION_BLOCKED',
-          actor: 'system',
-          action: 'Blocked Direct Order Creation',
-          reason: 'Attempted money action without explicit user confirmation gate',
-          status: 'blocked'
-        });
-        return res.status(400).json({ error: 'Explicit user confirmation required before order creation.' });
+      const { cartId, userId, userApproved, userConfirmed } = req.body;
+      
+      // Basic protection for demo routes (preventing external bots if needed)
+      if (req.headers['x-internal-bot'] === 'true') {
+        return res.status(403).json({ error: 'AI agent cannot direct checkout' });
       }
 
       if (!cartId) {
         return res.status(400).json({ error: 'cartId is required' });
       }
 
-      const orderData = await PaymentService.createOrder(cartId, userId);
+      const orderData = await PaymentService.createOrder(cartId, userId, userApproved);
       return res.json(orderData);
     } catch (err: any) {
+      if (err.message && err.message.startsWith('APPROVAL_REQUIRED:')) {
+        return res.status(403).json({ 
+          error: 'Approval required for this transaction amount.',
+          requireApproval: true,
+          amount: parseFloat(err.message.split(':')[1])
+        });
+      }
       return res.status(400).json({ error: err.message });
     }
   }
@@ -602,6 +624,37 @@ export class CommerceController {
       return res.json({ auditEvents: events });
     } catch (err: any) {
       return res.status(500).json({ error: err.message });
+    }
+  }
+    // ──────────────────────────────────────────────────────────────────────
+  // Agent Control Center
+  // ──────────────────────────────────────────────────────────────────────
+  static async getAgentConfig(req: Request, res: Response) {
+    try {
+      const config = await prisma.agentConfig.findUnique({ where: { id: 'default' } });
+      return res.json(config);
+    } catch (err) {
+      console.error('Failed to get agent config:', err);
+      return res.status(500).json({ error: 'Failed to get agent config' });
+    }
+  }
+
+  static async updateAgentConfig(req: Request, res: Response) {
+    try {
+      const { isActive, monthlySpendingLimit, autoApproveThreshold, requireApprovalMax } = req.body;
+      const config = await prisma.agentConfig.update({
+        where: { id: 'default' },
+        data: {
+          isActive: isActive !== undefined ? isActive : undefined,
+          monthlySpendingLimit: monthlySpendingLimit !== undefined ? monthlySpendingLimit : undefined,
+          autoApproveThreshold: autoApproveThreshold !== undefined ? autoApproveThreshold : undefined,
+          requireApprovalMax: requireApprovalMax !== undefined ? requireApprovalMax : undefined
+        }
+      });
+      return res.json(config);
+    } catch (err) {
+      console.error('Failed to update agent config:', err);
+      return res.status(500).json({ error: 'Failed to update agent config' });
     }
   }
 }

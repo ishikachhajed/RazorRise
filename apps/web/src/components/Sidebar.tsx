@@ -38,6 +38,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ cartItemCount, onOpenCart }) =
           <Sparkles size={18} />
           AI Assistant
         </Link>
+        <Link to="/agent-control" className={`nav-item ${isActive('/agent-control') ? 'active' : ''}`}>
+          <Bot size={18} />
+          Agent Control
+        </Link>
         <Link to="/orders" className={`nav-item ${isActive('/orders') ? 'active' : ''}`}>
           <ClipboardList size={18} />
           My Orders

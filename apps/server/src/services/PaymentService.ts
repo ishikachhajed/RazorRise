@@ -23,7 +23,7 @@ export class PaymentService {
    * Create Razorpay Test Order
    * STRICT BOUND: Amount is ALWAYS calculated on backend from active cart.
    */
-  static async createOrder(cartId: string, userId?: string) {
+  static async createOrder(cartId: string, userId?: string, userApproved: boolean = false) {
     const cart = await CartService.getOrCreateCart(cartId, userId);
     
     if (!cart.items || cart.items.length === 0) {
@@ -62,6 +62,48 @@ export class PaymentService {
           }
         }
       } catch (e) {}
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+    // Agent Spending Policy Enforcement
+    // ──────────────────────────────────────────────────────────────────────
+    const agentConfig = await prisma.agentConfig.findUnique({ where: { id: 'default' } });
+    if (agentConfig && agentConfig.isActive) {
+      if (finalAmount > agentConfig.requireApprovalMax) {
+        await AuditService.logEvent({
+          userId,
+          eventType: 'MONEY_ACTION_BLOCKED',
+          actor: 'system',
+          action: 'Blocked order creation',
+          reason: `Amount ₹${finalAmount} exceeds maximum transaction limit of ₹${agentConfig.requireApprovalMax}`,
+          status: 'blocked'
+        });
+        throw new Error(`Transaction Blocked: Amount ₹${finalAmount} exceeds your maximum transaction limit.`);
+      }
+
+      if (agentConfig.currentMonthlySpend + finalAmount > agentConfig.monthlySpendingLimit) {
+        await AuditService.logEvent({
+          userId,
+          eventType: 'MONEY_ACTION_BLOCKED',
+          actor: 'system',
+          action: 'Blocked order creation',
+          reason: `Amount ₹${finalAmount} exceeds remaining monthly limit`,
+          status: 'blocked'
+        });
+        throw new Error(`Transaction Blocked: Amount ₹${finalAmount} exceeds your remaining monthly spending limit.`);
+      }
+
+      if (finalAmount > agentConfig.autoApproveThreshold && !userApproved) {
+        await AuditService.logEvent({
+          userId,
+          eventType: 'GATED_CONFIRMATION_REQUIRED',
+          actor: 'system',
+          action: 'Requested explicit user approval',
+          reason: `Amount ₹${finalAmount} exceeds auto-approve threshold of ₹${agentConfig.autoApproveThreshold}`,
+          status: 'success'
+        });
+        throw new Error(`APPROVAL_REQUIRED:${finalAmount}`);
+      }
     }
 
     const amountInPaise = Math.round(finalAmount * 100);
@@ -398,6 +440,18 @@ export class PaymentService {
             where: { id: order.cartId },
             data: { status: 'converted' }
           });
+        }
+
+        // Update Agent Spend Progress
+        try {
+          await prisma.agentConfig.update({
+            where: { id: 'default' },
+            data: {
+              currentMonthlySpend: { increment: order.amount }
+            }
+          });
+        } catch (e) {
+          console.error('[Agent Spend Update Error]', e);
         }
       }
     } else if (outcome === 'failed') {

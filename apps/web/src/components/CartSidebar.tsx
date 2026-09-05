@@ -1,6 +1,7 @@
 import React from 'react';
 import { Cart } from '../services/api';
 import { ShoppingBag, X, Trash2, ArrowRight, ShieldCheck, Package } from 'lucide-react';
+import { UpsellBanner } from './UpsellBanner';
 
 interface CartSidebarProps {
   cart: Cart | null;
@@ -9,10 +10,12 @@ interface CartSidebarProps {
   onRemoveItem: (itemId: string) => void;
   onProceedToCheckout: () => void;
   onClearCart?: () => void;
+  upsellSuggestion?: any;
+  onAddUpsell?: (productId: string) => void;
 }
 
 export const CartSidebar: React.FC<CartSidebarProps> = ({
-  cart, isOpen, onClose, onRemoveItem, onProceedToCheckout, onClearCart
+  cart, isOpen, onClose, onRemoveItem, onProceedToCheckout, onClearCart, upsellSuggestion, onAddUpsell
 }) => {
   if (!isOpen) return null;
 
@@ -66,6 +69,13 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({
             items.map((item) => <CartItemRow key={item.id} item={item} onRemove={onRemoveItem} />)
           )}
         </div>
+
+        {/* Upsell Banner (Cart Bottom) */}
+        {upsellSuggestion && onAddUpsell && items.length > 0 && (
+          <div className="p-4 border-t bg-gray-50">
+            <UpsellBanner upsellData={upsellSuggestion} onAddUpsell={onAddUpsell} />
+          </div>
+        )}
 
         {/* Footer */}
         {items.length > 0 && (

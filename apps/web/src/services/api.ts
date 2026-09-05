@@ -164,7 +164,7 @@ export class ApiService {
       throw new Error(err.error || 'Failed to add item to cart');
     }
     const data = await res.json();
-    return data.cart as Cart;
+    return data;
   }
 
   static async removeFromCart(cartId: string, itemId: string) {
@@ -199,14 +199,17 @@ export class ApiService {
     return res.json();
   }
 
-  static async createRazorpayOrder(cartId: string, userConfirmed: boolean = true, userId?: string) {
+  static async createRazorpayOrder(cartId: string, userApproved: boolean = true, userId?: string) {
     const res = await fetch(`${API_BASE}/razorpay/order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cartId, userConfirmed, userId })
+      body: JSON.stringify({ cartId, userApproved, userConfirmed: userApproved, userId }) // send both for safety
     });
     if (!res.ok) {
       const err = await res.json();
+      if (err.requireApproval) {
+        throw { requireApproval: true, message: err.error, amount: err.amount };
+      }
       throw new Error(err.error || 'Failed to create Razorpay Order');
     }
     return res.json();

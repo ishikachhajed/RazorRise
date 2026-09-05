@@ -430,6 +430,7 @@ export class CommerceAgent {
       recommendations: coreResult.candidates,
       upsellSuggestion: coreResult.upsellSuggestion,
       incentive: coreResult.incentive,
+      purchasePlan: coreResult.purchasePlan,
       actionRequired: coreResult.decision === 'ASK_CLARIFYING_QUESTION' ? 'none' : 'none'
     };
   }
@@ -654,12 +655,25 @@ export class CommerceAgent {
       }
     }
 
+    let purchasePlan: any = undefined;
+    if (candidates.length > 0) {
+      purchasePlan = {
+        goal: `Find ${intent.category !== 'unknown' ? intent.category : 'a product'}`,
+        budget: intent.budgetMax ? `Under ₹${intent.budgetMax.toLocaleString('en-IN')}` : 'No limit specified',
+        requirements: intent.features.length > 0 ? intent.features : intent.useCases,
+        recommendedProduct: candidates[0].name,
+        price: `₹${candidates[0].price.toLocaleString('en-IN')}`,
+        reason: decisionReason
+      };
+    }
+
     return {
       decision,
       decisionReason,
       candidates,
       upsellSuggestion,
-      incentive
+      incentive,
+      purchasePlan
     };
   }
 }

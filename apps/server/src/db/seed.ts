@@ -30,6 +30,21 @@ async function main() {
     }
   });
 
+  // Seed Agent Config
+  console.log(`🤖 Seeding default agent config...`);
+  await prisma.agentConfig.upsert({
+    where: { id: 'default' },
+    update: {},
+    create: {
+      id: 'default',
+      isActive: true,
+      monthlySpendingLimit: 500000,
+      currentMonthlySpend: 0,
+      autoApproveThreshold: 50000,
+      requireApprovalMax: 150000
+    }
+  });
+
   // Seed Products
   console.log(`📦 Seeding ${rawProducts.length} products...`);
   for (const item of rawProducts) {
